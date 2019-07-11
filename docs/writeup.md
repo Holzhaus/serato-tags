@@ -402,3 +402,23 @@ Now let's look at the results while keeping in mind that:
 
 Column 2 is obviously containing the values we're looking for.
 This means that the 4 bytes following the hotcue index value contain the position in milliseconds as little-endian integer.
+
+## What's your name?
+
+Since it's also possible to assign textual names to hot cue points in Serato, let's check how these are stored.
+After preparing a file with 3 named hotcues and dumping its tags, a quick glance at `hexdump`'s output confirms that the names are also stored in `Serato Markers2`Ö
+
+    $ grep -Poaz '[\w/]*' data/analyzed-3-hotcue-with-names/Serato\ Markers2.octet-stream | tr -d '\0' | base64 -d | hexdump -C
+    00000000  01 01 43 4f 4c 4f 52 00  00 00 00 04 00 ff ff ff  |..COLOR.........|
+    00000010  43 55 45 00 00 00 00 1a  00 00 00 00 00 00 00 cc  |CUE.............|
+    00000020  00 00 00 00 48 65 6c 6c  6f 2c 20 57 6f 72 6c 64  |....Hello, World|
+    00000030  21 00 43 55 45 00 00 00  00 15 00 01 00 03 55 58  |!.CUE.........UX|
+    00000040  00 cc 88 00 00 00 c3 a4  c3 b6 c3 bc c3 9f 00 43  |...............C|
+    00000050  55 45 00 00 00 00 13 00  02 00 00 ea 64 00 00 00  |UE..........d...|
+    00000060  cc 00 00 c3 a9 c3 a8 c3  aa 00 42 50 4d 4c 4f 43  |..........BPMLOC|
+    00000070  4b 00 00 00 00 01 00 00                           |K.......|
+    00000078
+
+As we can see in `hexdump`'s ASCII output, the first hotcue is named `Hello, World!`.
+To check how non-ASCII chars in hotcue names are encoded, hotcue 2 and 3 were named `äöüß` and `éèê`.
+My guess that `UTF-8` has been used turned out to be correct.

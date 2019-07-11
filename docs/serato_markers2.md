@@ -55,4 +55,5 @@ The content ends with a single zero byte (`00`).
 |   `0A` |   `04` | `00 00 00 00`             | 0             | `uint32_t`              | Position in milliseconds
 |   `0E` |   `01` | `00`                      |               |                         |
 |   `0F` |   `03` | `cc 00 00`                | `#CC0000`     | 3-byte RGB value        | Hotcue color
-|   `12` |   `03` | `00 00 00`                |               |                         |
+|   `12` |   `03` | `00 00`                   |               |                         |
+|   `14` |   `01` | `00`                      | ``            | UTF-8 (zero-terminated) | Hotcue name

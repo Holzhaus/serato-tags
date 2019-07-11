@@ -10,7 +10,7 @@ UnknownEntry = collections.namedtuple('UnknownEntry', 'unknown_data')
 BpmLockEntry = collections.namedtuple('BpmLockEntry', 'field1')
 ColorEntry = collections.namedtuple('ColorEntry', 'field1 color')
 CueEntry = collections.namedtuple(
-    'CueEntry', 'field1 index position field4 color field6')
+    'CueEntry', 'field1 index position field4 color field6 name')
 
 
 def readbytes(fp):
@@ -40,13 +40,14 @@ def parse_tag(data):
             entry_data = struct.unpack(fmt, fp.read(entry_len))
             yield ColorEntry(*entry_data)
         elif entry_type == b'CUE':
-            fmt = '>cBIc3s3s'
-            assert struct.calcsize(fmt) == entry_len
+            fmt = '>cBIc3s2s'
+            assert struct.calcsize(fmt) <= entry_len
             field1, index, position, field4, color, field6 = struct.unpack(
-                fmt, fp.read(entry_len))
+                fmt, fp.read(struct.calcsize(fmt)))
+            name = b''.join(readbytes(fp)).decode('utf-8')
             yield CueEntry(
                 field1, index, position, field4, struct.unpack('3B', color),
-                field6)
+                field6, name)
         else:
             yield UnknownEntry(fp.read(entry_len))
 
