@@ -28,6 +28,8 @@ The content ends with a single zero byte (`00`).
 
 ### `BPMLOCK` entries
 
+| Offset | Length | Raw Value                 | Decoded Value | Type                    | Description
+| ------ | ------ | ------------------------- | ------------- | ----------------------- | -----------
 |   `00` |   `08` | `42 50 4d 4c 4f 43 4b 00` | `BPMLOCK`     | ASCII (zero-terminated) | Entry type
 |   `08` |   `06` | `00 00 00 01`             | 1             | `uint32_t`              | Entry length
 |   `0C` |   `01` | `00`                      |               |                         |
