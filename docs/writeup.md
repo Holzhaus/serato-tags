@@ -296,3 +296,46 @@ When using a color picker tool (e.g. `gpick`), we can see that the red displayed
 
 However, since the colors and their indices match so well, this can't really be coincidence.
 It suppose there's some kind of color scheme or transformation applied to these values.
+
+## Diving deeper into the `Serato Markers2` internals
+
+Since color information seem to be easily recognizable, we can use this to check if tracklist colors are stored in the `Serato Markers2` tag as well.
+Hence, let's the tracklist color to green:
+
+![Green tracklist color in Serato](serato-tracklist-color-green)
+
+    $ grep -Poaz '[\w/]*' Serato\ Markers2.octet-stream | tr -d '\0' | base64 -d | hexdump -C
+    00000000  01 01 43 4f 4c 4f 52 00  00 00 00 04 00 99 ff 99  |..COLOR.........|
+    00000010  42 50 4d 4c 4f 43 4b 00  00 00 00 01 00 00        |BPMLOCK.......|
+    0000001e
+
+Since the color `#99FF99` is green, the bytes `99 ff 99` seem to be RGB channel values for the track color.
+
+It makes sense to recapture our findings regarding the `Serato Markers2` tag and see if we can see a pattern:
+
+    1. The base64-content starts with `01 01`...
+    2. ... followed by multiple entries, where:
+        1. Each entry starts with a zero-terminated ASCII string denoting the entry type.
+        2. `COLOR` entries contain 8 more bytes.
+        3. `CUE` entries contain 17 more bytes.
+        4. `BPMLOCK` entries contain 6 more bytes.
+
+How would Serato parse this data?
+Each entry has a different size, even when we leave out the zero-terminated entry type.
+While it might be possible that Serato has a built-in mapping of entry types and their lengths, this would make it impossible to add new entry types in a backward-compatible way.
+Older versions would have no way to determine the length and thus can't skip the entry because they do not know where the next entry starts.
+
+Let's look closer at the first few bytes of each entry:
+
+    1. `COLOR` entries contain 8 bytes and start with `00 00 00 04`.
+    2. `CUE` entries contain 17 bytes and start with `00 00 00 0d`.
+    3. `BPMLOCK` entries contain 6 bytes and start with `00 00 00 01`.
+
+If we parse the first 4 bytes as 32-bit integer (little-endian), we can reasonably assume that determine the entry's length (excluding the integer itself).
+But wait, this doesn't work for `BPMLOCK` entries since they contain 2 more bytes, even though according to the length value there should only be 1 byte.
+
+Does this mean that our assumption is wrong?
+
+No, not neccessarily:
+Since `BPMLOCK` is the last entry inside the base64-encoded data, it's possible that the last byte (`00`) doesn't actually belong to the `BPMLOCK` entry.
+Instead it could be a sentinel value to tell Serato to stop parsing entries.
