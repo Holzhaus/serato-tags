@@ -24,14 +24,14 @@ The base64-encoded content starts with `01 01`, followed by multiple data entrie
     00000010  42 50 4d 4c 4f 43 4b 00  00 00 00 01 00 00        |BPMLOCK.......|
     0000001e
 
-The content ends with a single zero byte (`00`).
+The content ends with a single null byte (`00`).
 
 ### `BPMLOCK` entries
 
 | Offset | Length | Raw Value                 | Decoded Value | Type                    | Description
 | ------ | ------ | ------------------------- | ------------- | ----------------------- | -----------
 |   `00` |   `08` | `42 50 4d 4c 4f 43 4b 00` | `BPMLOCK`     | ASCII (zero-terminated) | Entry type
-|   `08` |   `06` | `00 00 00 01`             | 1             | `uint32_t`              | Entry length
+|   `08` |   `04` | `00 00 00 01`             | 1             | `uint32_t`              | Entry length
 |   `0C` |   `01` | `00`                      |               |                         |
 
 ### `COLOR` entries
@@ -39,7 +39,7 @@ The content ends with a single zero byte (`00`).
 | Offset | Length | Raw Value                 | Decoded Value | Type                    | Description
 | ------ | ------ | ------------------------- | ------------- | ----------------------- | -----------
 |   `00` |   `06` | `43 4f 4c 4f 52 00`       | `COLOR`       | ASCII (zero-terminated) | Entry type
-|   `06` |   `05` | `00 00 00 04`             | 4             | `uint32_t`              | Entry length
+|   `06` |   `04` | `00 00 00 04`             | 4             | `uint32_t`              | Entry length
 |   `0A` |   `01` | `00`                      |               |                         |
 |   `0C` |   `03` | `99 ff 99`                | `#99FF99`     | 3-byte RGB value        | Tracklist color
 
@@ -49,8 +49,8 @@ The content ends with a single zero byte (`00`).
 | Offset | Length | Raw Value                 | Decoded Value | Type                    | Description
 | ------ | ------ | ------------------------- | ------------- | ----------------------- | -----------
 |   `00` |   `04` | `43 55 45 00`             | `CUE`         | ASCII (zero-terminated) | Entry type
-|   `04` |   `05` | `00 00 00 0d`             | 13            | `uint32_t`              | Entry length
-|   `08` |   `01` | `00`                      |               |                         | 
+|   `04` |   `04` | `00 00 00 0d`             | 13            | `uint32_t`              | Entry length
+|   `08` |   `01` | `00`                      |               |                         |
 |   `09` |   `01` | `00`                      | 0             | `uint8_t`               | Hotcue index
 |   `0A` |   `04` | `00 00 00 00`             | 0             | `uint32_t`              | Position in milliseconds
 |   `0E` |   `01` | `00`                      |               |                         |
