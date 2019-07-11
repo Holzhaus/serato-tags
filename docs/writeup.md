@@ -339,3 +339,66 @@ Does this mean that our assumption is wrong?
 No, not neccessarily:
 Since `BPMLOCK` is the last entry inside the base64-encoded data, it's possible that the last byte (`00`) doesn't actually belong to the `BPMLOCK` entry.
 Instead it could be a sentinel value to tell Serato to stop parsing entries.
+
+## Hotcue positions
+
+Now it's time to decode the hotcue positions.
+To archieve this, I created a 5 hotcues with (hopefully) recognizable positions:
+
+| Hotcue | Position  | Comment
+| ------ | --------- | -------
+|      1 | `00:00.0` | Start of the file
+|      2 | `03:38.4` | End of the file
+|      3 | `01:00.0` |
+|      4 | `00:00.1` |
+|      5 | `00:01.0` |
+
+Looking at the hexdump, it is apparent that the 5 bytes between the hotcue index and the color contains the position:
+
+    $ grep -Poaz '[\w/]*' Serato\ Markers2.octet-stream | tr -d '\0' | base64 -d | tail -c +17 | head -c -14 | hexdump -e '"%08.8_ax " 21/1 "%02x " "\n"'
+    00000000 43 55 45 00 00 00 00 0d 00 00 00 00 00 00 00 cc 00 00 00 00 00
+    00000015 43 55 45 00 00 00 00 0d 00 01 00 03 55 58 00 cc 88 00 00 00 00
+    0000002a 43 55 45 00 00 00 00 0d 00 02 00 00 ea 64 00 00 00 cc 00 00 00
+    0000003f 43 55 45 00 00 00 00 0d 00 03 00 00 00 6c 00 cc cc 00 00 00 00
+    00000054 43 55 45 00 00 00 00 0d 00 04 00 00 03 f7 00 00 cc 00 00 00 00
+
+It is likely that the position will be some kind of `int` or `float` value.
+Since we already found little-endian values, the value will probably have little-endian byte order as well.
+
+Since both types are only 4 bytes long, we do not know which bytes belongs to another field.
+However, we can easily check all possibilities and see if we recognize something:
+
+    $ python
+    Python 3.7.3 (default, Jun 24 2019, 04:54:02)
+    [GCC 9.1.0] on linux
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> data = [
+    ... '00 00 00 00 00',
+    ... '00 03 55 58 00',
+    ... '00 00 ea 64 00',
+    ... '00 00 00 6c 00',
+    ... '00 00 03 f7 00',
+    ... ]
+    >>> import binascii
+    >>> x = [binascii.unhexlify(x.replace(' ','')) for x in data]
+    >>> x
+    [b'\x00\x00\x00\x00\x00', b'\x00\x03UX\x00', b'\x00\x00\xead\x00', b'\x00\x00\x00l\x00', b'\x00\x00\x03\xf7\x00']
+    >>> bindata = [binascii.unhexlify(x.replace(' ','')) for x in data]
+    >>> import struct
+    >>> for x in bindata:
+    ...     print('%10d %10d %3.10e %3.10e' % (struct.unpack('>xI', x)[0], struct.unpack('>Ix', x)[0], struct.unpack('>xf', x)[0], struct.unpack('>fx', x)[0]))
+    ...
+             0          0 0.0000000000e+00 0.0000000000e+00
+      55924736     218456 6.2696093227e-37 3.0612205732e-40
+      15361024      60004 2.1525379342e-38 8.4083513053e-41
+         27648        108 3.8743099942e-41 1.5134023415e-43
+        259840       1015 3.6411339297e-40 1.4223179413e-42
+
+Now let's look at the results while keeping in mind that:
+- Hotcue 2 has been placed at 03:38.4 = 218.4 seconds = 218400 milliseconds
+- Hotcue 3 has been placed at 1 minute = 60 seconds = 60000 milliseconds.
+- Hotcue 4 has been placed at 0.1 seconds = 100 milliseconds.
+- Hotcue 5 has been placed at 1 second = 1000 milliseconds.
+
+Column 2 is obviously containing the values we're looking for.
+This means that the 4 bytes following the hotcue index value contain the position in milliseconds as little-endian integer.

@@ -50,6 +50,7 @@ The content ends with a single zero byte (`00`).
 |   `04` |   `05` | `00 00 00 0d`             | 13            | `uint32_t`              | Entry length
 |   `08` |   `01` | `00`                      |               |                         | 
 |   `09` |   `01` | `00`                      | 0             | `uint8_t`               | Hotcue index
-|   `0A` |   `05` | `00 00 00 00 00`          |               |                         |
+|   `0A` |   `04` | `00 00 00 00`             | 0             | `uint32_t`              | Position in milliseconds
+|   `0E` |   `01` | `00`                      |               |                         |
 |   `0F` |   `03` | `cc 00 00`                | `#CC0000`     | 3-byte RGB value        | Hotcue color
 |   `12` |   `03` | `00 00 00`                |               |                         |
