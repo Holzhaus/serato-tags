@@ -36,7 +36,7 @@ In that case, the last byte can be ignored, but the trailing null byte may be mi
 | ------ | ------ | ------------------------- | ------------- | ----------------------- | -----------
 |   `00` |   `08` | `42 50 4d 4c 4f 43 4b 00` | `BPMLOCK`     | ASCII (null-terminated) | Entry type
 |   `08` |   `04` | `00 00 00 01`             | 1             | `uint32_t`              | Entry length
-|   `0C` |   `01` | `00`                      |               |                         |
+|   `0c` |   `01` | `00`                      |               |                         |
 
 ### `COLOR` entries
 
@@ -44,8 +44,8 @@ In that case, the last byte can be ignored, but the trailing null byte may be mi
 | ------ | ------ | ------------------------- | ------------- | ----------------------- | -----------
 |   `00` |   `06` | `43 4f 4c 4f 52 00`       | `COLOR`       | ASCII (null-terminated) | Entry type
 |   `06` |   `04` | `00 00 00 04`             | 4             | `uint32_t`              | Entry length
-|   `0A` |   `01` | `00`                      |               |                         |
-|   `0C` |   `03` | `99 ff 99`                | `#99FF99`     | 3-byte RGB value        | Tracklist color
+|   `0a` |   `01` | `00`                      |               |                         |
+|   `0c` |   `03` | `99 ff 99`                | `#99FF99`     | 3-byte RGB value        | Tracklist color
 
 
 ### `CUE` entries
@@ -56,9 +56,9 @@ In that case, the last byte can be ignored, but the trailing null byte may be mi
 |   `04` |   `04` | `00 00 00 0d`             | 13            | `uint32_t`              | Entry length
 |   `08` |   `01` | `00`                      |               |                         |
 |   `09` |   `01` | `00`                      | 0             | `uint8_t`               | Hotcue index
-|   `0A` |   `04` | `00 00 00 00`             | 0             | `uint32_t`              | Position in milliseconds
-|   `0E` |   `01` | `00`                      |               |                         |
-|   `0F` |   `03` | `cc 00 00`                | `#CC0000`     | 3-byte RGB value        | Hotcue color
+|   `0a` |   `04` | `00 00 00 00`             | 0             | `uint32_t`              | Position in milliseconds
+|   `0e` |   `01` | `00`                      |               |                         |
+|   `0f` |   `03` | `cc 00 00`                | `#CC0000`     | 3-byte RGB value        | Hotcue color
 |   `12` |   `03` | `00 00`                   |               |                         |
 |   `14` |   `01` | `00`                      | ``            | UTF-8 (null-terminated) | Hotcue name
 
@@ -69,9 +69,9 @@ In that case, the last byte can be ignored, but the trailing null byte may be mi
 |   `00` |   `05` | `4c 4f 4f 50 00`          | `LOOP`        | ASCII (null-terminated) | Entry type
 |   `05` |   `04` | `00 00 00 15`             | 21            | `uint32_t`              | Entry length
 |   `09` |   `01` | `00`                      |               |                         |
-|   `0A` |   `01` | `00`                      | 0             | `uint8_t`               | Loop index
-|   `0B` |   `04` | `00 00 00 00`             | 0             | `uint32_t`              | Start Position in milliseconds
-|   `0F` |   `04` | `00 00 08 26`             | 2086          | `uint32_t`              | End Position in milliseconds
+|   `0a` |   `01` | `00`                      | 0             | `uint8_t`               | Loop index
+|   `0b` |   `04` | `00 00 00 00`             | 0             | `uint32_t`              | Start Position in milliseconds
+|   `0f` |   `04` | `00 00 08 26`             | 2086          | `uint32_t`              | End Position in milliseconds
 |   `13` |   `01` | `00`                      |               |                         |
 |   `14` |   `01` | `00`                      | False         | `uint8_t` (boolean)     | Loop Locked
 |   `15` |   `01` | `00`                      | ``            | UTF-8 (null-terminated) | Loop name
