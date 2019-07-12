@@ -6,7 +6,7 @@ The popular DJ application *Serato DJ Pro* stores a lot data in GEOB-type ID3 ta
 This way, users can share beatgrids, hot cue points, saved loops and more by just copying over an MP3 file.
 
 Unfortunately, the format is not [publicly](https://serato.com/forum/discussion/1277101) [documented](https://music.stackexchange.com/questions/53753/documentation-for-the-embedded-cue-point-format-of-traktor-serato-ableton).
-Thus, I figured it could be fun to try to learn how these formats work the hard way.
+Thus, I figured it could be fun to try to learn how these formats work *the hard way(tm)*.
 
 
 ## Setup and Preparation
