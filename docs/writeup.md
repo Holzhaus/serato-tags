@@ -1,4 +1,4 @@
-# Reversing Serato's GEOB format for storing hot cues and loop
+# Reversing Serato's GEOB tags for storing hot cues and loops
 
 The popular DJ application *Serato DJ Pro* stores a lot data in GEOB-type ID3 tags of MP3 files.
 This way, users can share beatgrids, hot cue points, saved loops and more by just copying over an MP3 file.
