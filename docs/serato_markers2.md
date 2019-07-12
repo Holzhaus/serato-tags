@@ -26,6 +26,10 @@ The base64-encoded content starts with `01 01`, followed by multiple data entrie
 
 The content ends with a single null byte (`00`).
 
+If the content is very long, a linefeed character (`0a`) is inserted into the base64 string every 76 bytes.
+For some unknown reason, Serato may produce a base64 string that is 1 byte longer than a multiple of 4 (i.e. an invalid base64 string).
+In that case, the last byte can be ignored, but the trailing null byte may be missing in the decoded data.
+
 ### `BPMLOCK` entries
 
 | Offset | Length | Raw Value                 | Decoded Value | Type                    | Description
@@ -57,3 +61,17 @@ The content ends with a single null byte (`00`).
 |   `0F` |   `03` | `cc 00 00`                | `#CC0000`     | 3-byte RGB value        | Hotcue color
 |   `12` |   `03` | `00 00`                   |               |                         |
 |   `14` |   `01` | `00`                      | ``            | UTF-8 (zero-terminated) | Hotcue name
+
+#### `LOOP` entries
+
+| Offset | Length | Raw Value                 | Decoded Value | Type                    | Description
+| ------ | ------ | ------------------------- | ------------- | ----------------------- | -----------
+|   `00` |   `05` | `4c 4f 4f 50 00`          | `LOOP`        | ASCII (zero-terminated) | Entry type
+|   `05` |   `04` | `00 00 00 15`             | 21            | `uint32_t`              | Entry length
+|   `09` |   `01` | `00`                      |               |                         |
+|   `0A` |   `01` | `00`                      | 0             | `uint8_t`               | Loop index
+|   `0B` |   `04` | `00 00 00 00`             | 0             | `uint32_t`              | Start Position in milliseconds
+|   `0F` |   `04` | `00 00 08 26`             | 2086          | `uint32_t`              | End Position in milliseconds
+|   `13` |   `01` | `00`                      |               |                         |
+|   `14` |   `01` | `00`                      | False         | `uint8_t` (boolean)     | Loop Locked
+|   `15` |   `01` | `00`                      | ``            | UTF-8 (zero-terminated) | Loop name

@@ -422,3 +422,11 @@ After preparing a file with 3 named hotcues and dumping its tags, a quick glance
 As we can see in `hexdump`'s ASCII output, the first hotcue is named `Hello, World!`.
 To check how non-ASCII chars in hotcue names are encoded, hotcue 2 and 3 were named `äöüß` and `éèê`.
 My guess that `UTF-8` has been used turned out to be correct.
+
+## Saved Loops
+
+Using the same approach as above can be used to determine how saved loops are stored.
+One problem  popped up is that Serato may insert linefeed characters `0a` into the base64 string.
+
+Also, the base64 string may lead to decoding errors caused by an invalid length.
+In that case the last byte can apparently just be ignored.
