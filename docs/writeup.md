@@ -8,7 +8,6 @@ This way, users can share beatgrids, hot cue points, saved loops and more by jus
 Unfortunately, the format is not [publicly](https://serato.com/forum/discussion/1277101) [documented](https://music.stackexchange.com/questions/53753/documentation-for-the-embedded-cue-point-format-of-traktor-serato-ableton).
 Thus, I figured it could be fun to try to learn how these formats work *the hard way(tm)*.
 
-
 ## Setup and Preparation
 
 As example file I used [Perséphone - Retro Funky (SUNDANCE remix)](https://soundcloud.com/sundancemusic/pers-phone-retro-funky), which is licensed under the term of the [Creative Commons Attribution 3.0 Unported (CC BY 3.0) license](https://creativecommons.org/licenses/by/3.0/).
@@ -173,7 +172,7 @@ The `GEOB` tags look interesting, so let's dump them to individual files for fur
 Now let's have a look at the tag data and see if we can determine the meaning of it.
 The `Serato Analysis` tag only contains 2 bytes, so let's look at that one first.
 
-    $ hexdump -C ../shared/analyzed/Serato\ Analysis.octet-stream
+    $ hexdump -C analyzed/Serato\ Analysis.octet-stream
     00000000  02 01                                             |..|
     00000002
 
@@ -181,7 +180,7 @@ It's just a suspicion, but the numbers `02 01` look like the major/minor part of
 
 The hexdump of next larger tag (in terms of byte length), `Serato BeatGrid`, is inconclusive at the moment, but `Serato Autotags` contains recognizable data:
 
-    $ hexdump -C ../shared/analyzed/Serato\ Autotags.octet-stream
+    $ hexdump -C analyzed/Serato\ Autotags.octet-stream
     00000000  01 01 31 31 35 2e 30 30  00 2d 33 2e 32 35 37 00  |..115.00.-3.257.|
     00000010  30 2e 30 30 30 00                                 |0.000.|
     00000016
@@ -191,7 +190,7 @@ There are two more ASCII strings in there, but I'm not sure what they are for.
 
 Next, let's have a look at hexdump of `Serato Markers2`:
 
-    $ hexdump -C Serato\ Markers2.octet-stream
+    $ hexdump -C analyzed/Serato\ Markers2.octet-stream
     00000000  01 01 41 51 46 44 54 30  78 50 55 67 41 41 41 41  |..AQFDT0xPUgAAAA|
     00000010  41 45 41 50 2f 2f 2f 30  4a 51 54 55 78 50 51 30  |AEAP///0JQTUxPQ0|
     00000020  73 41 41 41 41 41 41 51  41 41 00 00 00 00 00 00  |sAAAAAAQAA......|
@@ -203,7 +202,7 @@ Next, let's have a look at hexdump of `Serato Markers2`:
 The ASCII data in that file certainly looks like it has been base64-encoded.
 Let's verify that that assumption and see what's inside:
 
-    $ grep -Poaz '[\w/]*' Serato\ Markers2.octet-stream | tr -d '\0' | base64 -d | hexdump -C
+    $ grep -Poaz '[\w/]*' analyzed/Serato\ Markers2.octet-stream | tr -d '\0' | base64 -d | hexdump -C
     00000000  01 01 43 4f 4c 4f 52 00  00 00 00 04 00 ff ff ff  |..COLOR.........|
     00000010  42 50 4d 4c 4f 43 4b 00  00 00 00 01 00 00        |BPMLOCK.......|
     0000001e
@@ -221,10 +220,10 @@ The remaining tags, `Serato Markers_` and `Serato Offsets_` contain a lot of rep
 Now, let's take our analyzed file and set a hot cue point.
 Again, we eject afterwards and use `eyeD3` to write the data inside the ID3 GEOB tags to a directory:
 
-    $ mkdir analyzed-1-hotcue-00-00-red
-    $ eyeD3 --write-objects analyzed-1-hotcue-00-00-red analyzed-1-hotcue-00-00-red.mp3
+    $ mkdir hotcue-00m00s0-red
+    $ eyeD3 --write-objects hotcue-00m00s0-red hotcue-00m00s0-red.mp3
     <output removed>
-    $ cd analyzed-1-hotcue-00-00-red
+    $ cd hotcue-00m00s0-red
 
 Next, let's check if anything changed:
 
@@ -269,9 +268,9 @@ Except for the first 3 bytes that say `CUE` in ASCII, we don't really know what 
 To determine what the individual bytes mean, we can change something and check how these are represented in the ID3 tags.
 For example, when the cue color is changed to blue, the content of the base64-encoded data changes as well:
 
-    $ grep -Poaz '[\w/]*' analyzed-1-hotcue-00-00-red/Serato\ Markers2.octet-stream | tr -d '\0' | base64 -d | tail -c +17 | head -c -14 | hexdump -e '"%08.8_ax " 21/1 "%02X " "\n"'
+    $ grep -Poaz '[\w/]*' hotcue-00m00s0-red/Serato\ Markers2.octet-stream | tr -d '\0' | base64 -d | tail -c +17 | head -c -14 | hexdump -e '"%08.8_ax " 21/1 "%02X " "\n"'
     00000000 43 55 45 00 00 00 00 0d 00 00 00 00 00 00 00 cc 00 00 00 00 00
-    $ grep -Poaz '[\w/]*' analyzed-1-hotcue-00-00-blue/Serato\ Markers2.octet-stream | tr -d '\0' | base64 -d | tail -c +17 | head -c -14 | hexdump -e '"%08.8_ax " 21/1 "%02X " "\n"'
+    $ grep -Poaz '[\w/]*' hotcue-00m00s0-bue/Serato\ Markers2.octet-stream | tr -d '\0' | base64 -d | tail -c +17 | head -c -14 | hexdump -e '"%08.8_ax " 21/1 "%02X " "\n"'
     00000000 43 55 45 00 00 00 00 0d 00 00 00 00 00 00 00 00 00 cc 00 00 00
 
 As we can see, the `cc` byte has moved two bytes to the right, i.e. `cc 00 00` became `00 00 cc`.
@@ -283,7 +282,7 @@ Next, we compare it with a file that 8 cuepoints in different colors.
 
 The data looks like this:
 
-    $ grep -Poaz '[\w/]*' analyzed-8-hotcue-00-00-different-colors/Serato\ Markers2.octet-stream | tr -d '\0' | base64 -d | tail -c +17 | head -c -14 | hexdump -e '"%08.8_ax " 21/1 "%02X " "\n"'
+    $ grep -Poaz '[\w/]*' hotcue-colors/Serato\ Markers2.octet-stream | tr -d '\0' | base64 -d | tail -c +17 | head -c -14 | hexdump -e '"%08.8_ax " 21/1 "%02X " "\n"'
     00000000 43 55 45 00 00 00 00 0d 00 00 00 00 00 00 00 cc 00 00 00 00 00
     00000015 43 55 45 00 00 00 00 0d 00 01 00 00 00 00 00 cc 88 00 00 00 00
     0000002a 43 55 45 00 00 00 00 0d 00 02 00 00 00 00 00 00 00 cc 00 00 00
@@ -315,7 +314,7 @@ Hence, let's the tracklist color to green:
 
 ![Green tracklist color in Serato](serato-tracklist-colorpicker-green.png)
 
-    $ grep -Poaz '[\w/]*' Serato\ Markers2.octet-stream | tr -d '\0' | base64 -d | hexdump -C
+    $ grep -Poaz '[\w/]*' tracklist-color/Serato\ Markers2.octet-stream | tr -d '\0' | base64 -d | hexdump -C
     00000000  01 01 43 4f 4c 4f 52 00  00 00 00 04 00 99 ff 99  |..COLOR.........|
     00000010  42 50 4d 4c 4f 43 4b 00  00 00 00 01 00 00        |BPMLOCK.......|
     0000001e
@@ -366,7 +365,7 @@ To archieve this, I created a 5 hotcues with (hopefully) recognizable positions:
 
 Looking at the hexdump, it is apparent that the 5 bytes between the hotcue index and the color contains the position:
 
-    $ grep -Poaz '[\w/]*' Serato\ Markers2.octet-stream | tr -d '\0' | base64 -d | tail -c +17 | head -c -14 | hexdump -e '"%08.8_ax " 21/1 "%02x " "\n"'
+    $ grep -Poaz '[\w/]*' hotcue-positions-00m00s0-03m38s4-01m00s0-00m00s1-00m01s0/Serato\ Markers2.octet-stream | tr -d '\0' | base64 -d | tail -c +17 | head -c -14 | hexdump -e '"%08.8_ax " 21/1 "%02x " "\n"'
     00000000 43 55 45 00 00 00 00 0d 00 00 00 00 00 00 00 cc 00 00 00 00 00
     00000015 43 55 45 00 00 00 00 0d 00 01 00 03 55 58 00 cc 88 00 00 00 00
     0000002a 43 55 45 00 00 00 00 0d 00 02 00 00 ea 64 00 00 00 cc 00 00 00
@@ -417,9 +416,9 @@ This means that the 4 bytes following the hotcue index value contain the positio
 ## What's your name?
 
 Since it's also possible to assign textual names to hot cue points in Serato, let's check how these are stored.
-After preparing a file with 3 named hotcues and dumping its tags, a quick glance at `hexdump`'s output confirms that the names are also stored in `Serato Markers2`Ö
+After preparing a file with 3 named hotcues and dumping its tags, a quick glance at `hexdump`'s output confirms that the names are also stored in `Serato Markers2`.
 
-    $ grep -Poaz '[\w/]*' data/analyzed-3-hotcue-with-names/Serato\ Markers2.octet-stream | tr -d '\0' | base64 -d | hexdump -C
+    $ grep -Poaz '[\w/]*' hotcues-with-names/Serato\ Markers2.octet-stream | tr -d '\0' | base64 -d | hexdump -C
     00000000  01 01 43 4f 4c 4f 52 00  00 00 00 04 00 ff ff ff  |..COLOR.........|
     00000010  43 55 45 00 00 00 00 1a  00 00 00 00 00 00 00 cc  |CUE.............|
     00000020  00 00 00 00 48 65 6c 6c  6f 2c 20 57 6f 72 6c 64  |....Hello, World|
