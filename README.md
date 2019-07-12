@@ -1,6 +1,7 @@
 # Serato Tags
 
 This repository aims to document the GEOB ID3 tag that the Serato DJ software uses to store its metadata.
+You can also have a look at [this lengthy blog post](https://homepage.ruhr-uni-bochum.de/jan.holthuis/posts/reversing-seratos-geob-tags) that goes into detail how I reversed the contents of the `Serato Markers2` GEOB tag.
 
 | Tag                                          | Progress      | Contents
 | -------------------------------------------- | ------------- | --------
