@@ -439,3 +439,13 @@ One problem  popped up is that Serato may insert linefeed characters `0a` into t
 
 Also, the base64 string may lead to decoding errors caused by an invalid length.
 In that case the last byte can apparently just be ignored.
+
+## What's left to do?
+
+A lot. Some fields in the `Serato Markers2` are still unmapped, and I didn't really look at the `Serato Offsets_` and `Serato_Markers_` tags.
+Maybe some fields could be edited manually to see how Serato reacts to these changes?
+
+I was mainly doing this to add support for importing Serato Hotcues to [Mixxx](https://www.mixxx.org/), an excellent free and open-source DJ application that runs on Windows, Mac and Windows.
+Also, I didn't investigate how [Serato Flips](https://store.serato.com/us/software/expansion-packs/serato-dj-flip-expansion-pack) are stored [since such a functionality is not implemented in Mixxx yet](https://bugs.launchpad.net/mixxx/+bug/1768113).
+
+If you want to help completing the documentation of Serato's GEOB data formats, feel free to send me a pull request.
