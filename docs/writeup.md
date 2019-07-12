@@ -1,4 +1,13 @@
-# Music
+# Reversing Serato's GEOB format for storing hot cues and loop
+
+The popular DJ application *Serato DJ Pro* stores a lot data in GEOB-type ID3 tags of MP3 files.
+This way, users can share beatgrids, hot cue points, saved loops and more by just copying over an MP3 file.
+
+Unfortunately, the format is not [publicly](https://serato.com/forum/discussion/1277101) [documented](https://music.stackexchange.com/questions/53753/documentation-for-the-embedded-cue-point-format-of-traktor-serato-ableton).
+Thus, I figured it could be fun to try to learn how these formats work the hard way.
+
+
+## Setup and Preparation
 
 As example file I used [Perséphone - Retro Funky (SUNDANCE remix)](https://soundcloud.com/sundancemusic/pers-phone-retro-funky), which is licensed under the term of the [Creative Commons Attribution 3.0 Unported (CC BY 3.0) license](https://creativecommons.org/licenses/by/3.0/).
 
@@ -157,7 +166,7 @@ The `GEOB` tags look interesting, so let's dump them to individual files for fur
     Writing analyzed/Serato Offsets_.octet-stream...
     -------------------------------------------------------------------------------
 
-# A first look
+## A first look
 
 Now let's have a look at the tag data and see if we can determine the meaning of it.
 The `Serato Analysis` tag only contains 2 bytes, so let's look at that one first.
