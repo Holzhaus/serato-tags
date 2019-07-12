@@ -302,7 +302,7 @@ It suppose there's some kind of color scheme or transformation applied to these 
 Since color information seem to be easily recognizable, we can use this to check if tracklist colors are stored in the `Serato Markers2` tag as well.
 Hence, let's the tracklist color to green:
 
-![Green tracklist color in Serato](serato-tracklist-color-green)
+![Green tracklist color in Serato](serato-tracklist-colorpicker-green.png)
 
     $ grep -Poaz '[\w/]*' Serato\ Markers2.octet-stream | tr -d '\0' | base64 -d | hexdump -C
     00000000  01 01 43 4f 4c 4f 52 00  00 00 00 04 00 99 ff 99  |..COLOR.........|
