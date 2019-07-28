@@ -51,7 +51,7 @@ class UnknownEntry(Entry):
 
 class BpmLockEntry(Entry):
     NAME = 'BPMLOCK'
-    FIELDS = ('field1',)
+    FIELDS = ('enabled',)
     FMT = 'B'
 
     @classmethod
@@ -59,7 +59,7 @@ class BpmLockEntry(Entry):
         return cls(*struct.unpack(cls.FMT, data))
 
     def dump(self):
-        return struct.pack(self.FMT, self.field1)
+        return struct.pack(self.FMT, self.enabled)
 
 
 class ColorEntry(Entry):
