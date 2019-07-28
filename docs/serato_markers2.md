@@ -36,7 +36,7 @@ In that case, you can just append an `A` (of `A==` if you use padding) before de
 | ------ | ------ | ------------------------- | ------------- | ----------------------- | -----------
 |   `00` |   `08` | `42 50 4d 4c 4f 43 4b 00` | `BPMLOCK`     | ASCII (null-terminated) | Entry type
 |   `08` |   `04` | `00 00 00 01`             | 1             | `uint32_t`              | Entry length
-|   `0c` |   `01` | `00`                      |               |                         |
+|   `0c` |   `01` | `00`                      | False         | `uint8_t` (boolean)     | [Beatgrid locked](https://support.serato.com/hc/en-us/articles/235214887-Lock-Beatgrids)
 
 ### `COLOR` entries
 
