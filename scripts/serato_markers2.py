@@ -2,16 +2,11 @@
 # -*- coding: utf-8 -*-
 import argparse
 import base64
-import collections
 import io
 import struct
+import mutagen
 
-UnknownEntry = collections.namedtuple('UnknownEntry', 'unknown_data')
-BpmLockEntry = collections.namedtuple('BpmLockEntry', 'field1')
-ColorEntry = collections.namedtuple('ColorEntry', 'field1 color')
-LoopEntry = collections.namedtuple('LoopEntry', 'field1 index startposition endposition field5 field6 locked name')
-CueEntry = collections.namedtuple(
-    'CueEntry', 'field1 index position field4 color field6 name')
+FMT_VERSION = 'BB'
 
 
 def readbytes(fp):
@@ -21,61 +16,174 @@ def readbytes(fp):
         yield x
 
 
-def parse_tag(data):
-    assert data[:2] == b'\x01\x01'
-    b64len = data[2:].index(b'\x00')
+class Entry(object):
+    def __init__(self, *args):
+        assert len(args) == len(self.FIELDS)
+        for field, value in zip(self.FIELDS, args):
+            setattr(self, field, value)
 
-    fp = io.BytesIO()
-    for line in data[2:2+b64len].splitlines():
-        if (len(line) % 4) == 1:
-            line = line[:-1]
-        else:
-            line = line + b'='*(4 - (len(line) % 4))
-        fp.write(base64.b64decode(line))
-    fp.seek(0)
+    def __repr__(self):
+        return '{name}({data})'.format(
+            name=self.__class__.__name__,
+            data=', '.join('{}={!r}'.format(name, getattr(self, name))
+                           for name in self.FIELDS))
 
-    assert fp.read(2) == b'\x01\x01'
+
+class UnknownEntry(Entry):
+    NAME = None
+    FIELDS = ('data',)
+
+    @classmethod
+    def load(cls, data):
+        return cls(data)
+
+    def dump(self):
+        return self.data
+
+
+class BpmLockEntry(Entry):
+    NAME = 'BPMLOCK'
+    FIELDS = ('field1',)
+    FMT = 'B'
+
+    @classmethod
+    def load(cls, data):
+        return cls(*struct.unpack(cls.FMT, data))
+
+    def dump(self):
+        return struct.pack(self.FMT, self.field1)
+
+
+class ColorEntry(Entry):
+    NAME = 'COLOR'
+    FMT = 'c3s'
+    FIELDS = ('field1', 'color',)
+
+    @classmethod
+    def load(cls, data):
+        return cls(*struct.unpack(cls.FMT, data))
+
+    def dump(self):
+        return struct.pack(self.FMT, self.field1, self.color)
+
+
+class CueEntry(Entry):
+    NAME = 'CUE'
+    FMT = '>cBIc3s2s'
+    FIELDS = ('field1', 'index', 'position', 'field4', 'color', 'field6',
+              'name',)
+
+    @classmethod
+    def load(cls, data):
+        info_size = struct.calcsize(cls.FMT)
+        info = struct.unpack(cls.FMT, data[:info_size])
+        name, nullbyte, other = data[info_size:].partition(b'\x00')
+        assert nullbyte == b'\x00'
+        assert other == b''
+        return cls(*info, name.decode('utf-8'))
+
+    def dump(self):
+        return b''.join((
+            struct.pack(self.FMT, self.field1, self.index, self.position,
+                        self.field4, self.color, self.field6),
+            self.name.encode('utf-8'),
+            b'\x00',
+        ))
+
+
+class LoopEntry:
+    NAME = 'LOOP'
+    FMT = '>cBII8sB?'
+    FIELDS = ('field1', 'index', 'startposition', 'endposition', 'field5',
+              'field6', 'locked', 'name',)
+
+    @classmethod
+    def load(cls, data):
+        info_size = struct.calcsize(cls.FMT)
+        info = struct.unpack(cls.FMT, data[:info_size])
+        name, nullbyte, other = data[info_size:].partition(b'\x00')
+        assert nullbyte == b'\x00'
+        assert other == b''
+        return cls(*info, name.decode('utf-8'))
+
+    def dump(self):
+        return b''.join((
+            struct.pack(self.FMT, self.field1, self.index, self.startposition,
+                        self.endposition, self.field5, self.field6,
+                        self.locked),
+            self.name.encode('utf-8'),
+            b'\x00',
+        ))
+
+
+def parse(data):
+    versionlen = struct.calcsize(FMT_VERSION)
+    version = struct.unpack(FMT_VERSION, data[:versionlen])
+    assert version == (0x01, 0x01)
+
+    b64data = data[versionlen:data.index(b'\x00', versionlen)].replace(b'\n', b'')
+    padding = b'A' if len(b64data) % 4 == 1 else b''
+    payload = base64.b64decode(b64data + padding)
+    fp = io.BytesIO(payload)
+    assert struct.unpack(FMT_VERSION, fp.read(2)) == (0x01, 0x01)
     while True:
-        entry_type = b''.join(readbytes(fp))
-        if entry_type == b'':
+        entry_name = b''.join(readbytes(fp)).decode('utf-8')
+        if not entry_name:
             break
         entry_len = struct.unpack('>I', fp.read(4))[0]
         assert entry_len > 0
 
-        if entry_type == b'BPMLOCK':
-            assert entry_len == 1
-            yield BpmLockEntry(fp.read(entry_len))
-        elif entry_type == b'COLOR':
-            fmt = 'c3s'
-            entry_data = struct.unpack(fmt, fp.read(entry_len))
-            yield ColorEntry(*entry_data)
-        elif entry_type == b'CUE':
-            fmt = '>cBIc3s2s'
-            assert struct.calcsize(fmt) <= entry_len
-            field1, index, position, field4, color, field6 = struct.unpack(
-                fmt, fp.read(struct.calcsize(fmt)))
-            name = b''.join(readbytes(fp)).decode('utf-8')
-            yield CueEntry(
-                field1, index, position, field4, struct.unpack('3B', color),
-                field6, name)
-        elif entry_type == b'LOOP':
-            fmt = '>cBII8sB?'
-            assert struct.calcsize(fmt) <= entry_len
-            entry_data = struct.unpack(fmt, fp.read(struct.calcsize(fmt)))
-            name = b''.join(readbytes(fp)).decode('utf-8')
-            yield LoopEntry(*entry_data, name)
+        entry_type = UnknownEntry
+        for entry_cls in (BpmLockEntry, ColorEntry, CueEntry, LoopEntry):
+            if entry_cls.NAME == entry_name:
+                entry_type = entry_cls
+
+        yield entry_type.load(fp.read(entry_len))
+
+
+def dump(entries):
+    version = struct.pack(FMT_VERSION, 0x01, 0x01)
+
+    contents = [version]
+    for entry in entries:
+        if entry.NAME is None:
+            contents.append(entry.dump())
         else:
-            yield UnknownEntry(fp.read(entry_len))
+            data = entry.dump()
+            contents.append(b''.join((
+                entry.NAME.encode('utf-8'),
+                b'\x00',
+                struct.pack('>I', (len(data))),
+                data,
+            )))
+
+    payload = b''.join(contents)
+    payload_base64 = bytearray(base64.b64encode(payload).replace(b'=', b'A'))
+
+    i = 72
+    while i < len(payload_base64):
+        payload_base64.insert(i, 0x0A)
+        i += 73
+
+    data = version
+    data += payload_base64
+    return data.ljust(470, b'\x00')
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        'tag_file', metavar='TAG_FILE', type=argparse.FileType('rb'))
+    parser.add_argument('file', metavar='FILE')
     args = parser.parse_args(argv)
-    data = args.tag_file.read()
-    for entry in parse_tag(data):
-        print(repr(entry))
+
+    tagfile = mutagen.File(args.file)
+    if tagfile is not None:
+        data = tagfile.tags['GEOB:Serato Markers2'].data
+    else:
+        with open(args.file, mode='rb') as fp:
+            data = fp.read()
+
+    for entry in parse(data):
+        print(entry)
 
 
 if __name__ == '__main__':
