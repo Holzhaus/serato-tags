@@ -1,9 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import argparse
+import ast
 import base64
+import configparser
 import io
+import math
+import os
+import shutil
 import struct
+import subprocess
+import sys
+import tempfile
 import mutagen
 
 FMT_VERSION = 'BB'
@@ -116,6 +124,15 @@ class LoopEntry(Entry):
         ))
 
 
+def get_entry_type(entry_name):
+    entry_type = UnknownEntry
+    for entry_cls in (BpmLockEntry, ColorEntry, CueEntry, LoopEntry):
+        if entry_cls.NAME == entry_name:
+            entry_type = entry_cls
+            break
+    return entry_type
+
+
 def parse(data):
     versionlen = struct.calcsize(FMT_VERSION)
     version = struct.unpack(FMT_VERSION, data[:versionlen])
@@ -133,11 +150,7 @@ def parse(data):
         entry_len = struct.unpack('>I', fp.read(4))[0]
         assert entry_len > 0
 
-        entry_type = UnknownEntry
-        for entry_cls in (BpmLockEntry, ColorEntry, CueEntry, LoopEntry):
-            if entry_cls.NAME == entry_name:
-                entry_type = entry_cls
-
+        entry_type = get_entry_type(entry_name)
         yield entry_type.load(fp.read(entry_len))
 
 
@@ -170,20 +183,183 @@ def dump(entries):
     return data.ljust(470, b'\x00')
 
 
+def ui_ask(question, choices, default=None):
+    text = '{question} [{choices}]? '.format(
+        question=question,
+        choices='/'.join(
+            x.upper() if x == default else x
+            for x in (*choices.keys(), '?')
+        )
+    )
+
+    while True:
+        answer = input(text).lower()
+        if default and answer == '':
+            answer = default
+
+        if answer in choices.keys():
+            return answer
+        else:
+            print('\n'.join(
+                '{} - {}'.format(choice, desc)
+                for choice, desc in (*choices.items(), ('?', 'print help'))
+            ))
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('file', metavar='FILE')
+    parser.add_argument('-e', '--edit', action='store_true')
     args = parser.parse_args(argv)
+
+    if args.edit:
+        text_editor = shutil.which(os.getenv('EDITOR', 'vi'))
+        if not text_editor:
+            print('No suitable $EDITOR found.', file=sys.stderr)
+            sys.exit(1)
+
+        hex_editor = shutil.which(os.getenv('HEXEDITOR', 'bvi'))
+        if not hex_editor:
+            print('No suitable HEXEDITOR found.', file=sys.stderr)
+            sys.exit(1)
 
     tagfile = mutagen.File(args.file)
     if tagfile is not None:
-        data = tagfile.tags['GEOB:Serato Markers2'].data
+        try:
+            data = tagfile['GEOB:Serato Markers2'].data
+        except KeyError:
+            print('File is missing "GEOB:Serato Markers2" tag')
+            sys.exit(1)
     else:
         with open(args.file, mode='rb') as fp:
             data = fp.read()
 
-    for entry in parse(data):
-        print(entry)
+    entries = list(parse(data))
+    new_entries = []
+    action = None
+
+    width = math.floor(math.log10(len(entries)))+1
+    for entry_index, entry in enumerate(entries):
+        if args.edit:
+            if action not in ('q', '_'):
+                print('{:{}d}: {!r}'.format(entry_index, width, entry))
+                action = ui_ask('Edit this entry', {
+                    'y': 'edit this entry',
+                    'n': 'do not edit this entry',
+                    'q': ('quit; do not edit this entry or any of the '
+                          'remaining ones'),
+                    'a': 'edit this entry and all later entries in the file',
+                    'b': 'edit raw bytes',
+                    'r': 'remove this entry',
+                }, default='n')
+
+            if action in ('y', 'a', 'b'):
+                while True:
+                    with tempfile.NamedTemporaryFile() as f:
+                        if action == 'b':
+                            f.write(entry.dump())
+                            editor = hex_editor
+                        else:
+                            if action == 'a':
+                                entries_to_edit = ((
+                                    '{:{}d}: {}'.format(i, width, e.NAME),
+                                    e,
+                                ) for i, e in enumerate(
+                                    entries[entry_index:], start=entry_index))
+                            else:
+                                entries_to_edit = ((entry.NAME, entry),)
+
+                            for section, e in entries_to_edit:
+                                f.write('[{}]\n'.format(section).encode())
+                                for field in e.FIELDS:
+                                    f.write('{}: {!r}\n'.format(
+                                        field, getattr(e, field),
+                                    ).encode())
+                                f.write(b'\n')
+                            editor = text_editor
+                        f.flush()
+                        status = subprocess.call((editor, f.name))
+                        f.seek(0)
+                        output = f.read()
+
+                    if status != 0:
+                        if ui_ask('Command failed, retry', {
+                            'y': 'edit again',
+                            'n': 'leave unchanged',
+                        }) == 'n':
+                            break
+                    else:
+                        try:
+                            if action != 'b':
+                                cp = configparser.ConfigParser()
+                                cp.read_string(output.decode())
+                                sections = tuple(sorted(cp.sections()))
+                                if action != 'a':
+                                    assert len(sections) == 1
+
+                                results = []
+                                for section in sections:
+                                    l, s, r = section.partition(': ')
+                                    entry_type = get_entry_type(r if s else l)
+
+                                    e = entry_type(*(
+                                        ast.literal_eval(
+                                            cp.get(section, field),
+                                        ) for field in entry_type.FIELDS
+                                    ))
+                                    results.append(entry_type.load(e.dump()))
+                            else:
+                                results = [entry.load(output)]
+                        except Exception as e:
+                            print(str(e))
+                            if ui_ask('Content seems to be invalid, retry', {
+                                'y': 'edit again',
+                                'n': 'leave unchanged',
+                            }) == 'n':
+                                break
+                        else:
+                            for i, e in enumerate(results, start=entry_index):
+                                print('{:{}d}: {!r}'.format(i, width, e))
+                            subaction = ui_ask(
+                                'Above content is valid, save changes', {
+                                    'y': 'save current changes',
+                                    'n': 'discard changes',
+                                    'e': 'edit again',
+                                }, default='y')
+                            if subaction == 'y':
+                                new_entries.extend(results)
+                                if action == 'a':
+                                    action = '_'
+                                break
+                            elif subaction == 'n':
+                                if action == 'a':
+                                    action = 'q'
+                                new_entries.append(entry)
+                                break
+            elif action in ('r', '_'):
+                continue
+            else:
+                new_entries.append(entry)
+        else:
+            print('{:{}d}: {!r}'.format(entry_index, width, entry))
+
+    if args.edit:
+        if new_entries == entries:
+            print('No changes made.')
+        else:
+            new_data = dump(new_entries)
+
+            if tagfile is not None:
+                tagfile['GEOB:Serato Markers2'] = mutagen.id3.GEOB(
+                    encoding=0,
+                    mime='application/octet-stream',
+                    desc='Serato Markers2',
+                    data=new_data,
+                )
+                tagfile.save()
+            else:
+                with open(args.file, mode='wb') as fp:
+                    fp.write(new_data)
 
 
 if __name__ == '__main__':
