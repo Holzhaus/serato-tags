@@ -26,9 +26,9 @@ The base64-encoded content starts with `01 01`, followed by multiple data entrie
 
 The content ends with a single null byte (`00`).
 
-If the content is very long, a linefeed character (`0a`) is inserted into the base64 string every 76 bytes.
+If the content is very long, a linefeed character (`0a`) is inserted into the base64 string every 72 bytes.
 For some unknown reason, Serato may produce a base64 string that is 1 byte longer than a multiple of 4 (i.e. an invalid base64 string).
-In that case, the last byte can be ignored, but the trailing null byte may be missing in the decoded data.
+In that case, you can just append an `A` (of `A==` if you use padding) before decoding it.
 
 ### `BPMLOCK` entries
 
