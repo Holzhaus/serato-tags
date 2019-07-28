@@ -122,7 +122,7 @@ def parse(data):
     assert version == (0x01, 0x01)
 
     b64data = data[versionlen:data.index(b'\x00', versionlen)].replace(b'\n', b'')
-    padding = b'A' if len(b64data) % 4 == 1 else b''
+    padding = b'A==' if len(b64data) % 4 == 1 else (b'=' * (-len(b64data) % 4))
     payload = base64.b64decode(b64data + padding)
     fp = io.BytesIO(payload)
     assert struct.unpack(FMT_VERSION, fp.read(2)) == (0x01, 0x01)
