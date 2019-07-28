@@ -91,7 +91,7 @@ class CueEntry(Entry):
         ))
 
 
-class LoopEntry:
+class LoopEntry(Entry):
     NAME = 'LOOP'
     FMT = '>cBII8sB?'
     FIELDS = ('field1', 'index', 'startposition', 'endposition', 'field5',
