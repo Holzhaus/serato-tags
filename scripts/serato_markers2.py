@@ -215,12 +215,12 @@ def main(argv=None):
         text_editor = shutil.which(os.getenv('EDITOR', 'vi'))
         if not text_editor:
             print('No suitable $EDITOR found.', file=sys.stderr)
-            sys.exit(1)
+            return 1
 
         hex_editor = shutil.which(os.getenv('HEXEDITOR', 'bvi'))
         if not hex_editor:
             print('No suitable HEXEDITOR found.', file=sys.stderr)
-            sys.exit(1)
+            return 1
 
     tagfile = mutagen.File(args.file)
     if tagfile is not None:
@@ -228,7 +228,7 @@ def main(argv=None):
             data = tagfile['GEOB:Serato Markers2'].data
         except KeyError:
             print('File is missing "GEOB:Serato Markers2" tag')
-            sys.exit(1)
+            return 1
     else:
         with open(args.file, mode='rb') as fp:
             data = fp.read()
@@ -360,6 +360,8 @@ def main(argv=None):
                 with open(args.file, mode='wb') as fp:
                     fp.write(new_data)
 
+    return 0
+
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
