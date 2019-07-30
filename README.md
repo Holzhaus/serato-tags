@@ -6,7 +6,7 @@ You can also have a look at [this lengthy blog post](https://homepage.ruhr-uni-b
 | Tag                                          | Progress      | Contents                   | Example script
 | -------------------------------------------- | ------------- | -------------------------- | --------------
 | [`Serato Analysis`](docs/serato_analysis.md) | Done          | Serato version information |
-| [`Serato Autotags`](docs/serato_autotags.md) | Started       | BPM, etc.                  | [`serato_autotags.py`](scripts/serato_autotags.py)
+| [`Serato Autotags`](docs/serato_autotags.md) | Done          | BPM and Gain values        | [`serato_autotags.py`](scripts/serato_autotags.py)
 | [`Serato BeatGrid`](docs/serato_beatgrid.md) | *Not started* |                            |
 | [`Serato Markers2`](docs/serato_markers2.md) | Mostly done   | Hotcues, Saved Loops, etc. | [`serato_markers2.py`](scripts/serato_markers2.py)
 | [`Serato Markers_`](docs/serato_markers_.md) | *Not started* |                            |
