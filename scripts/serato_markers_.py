@@ -18,9 +18,11 @@ def parse(fp):
         entry_data = fp.read(0x16)
         assert len(entry_data) == 0x16
 
+        # TODO: Find entry format
         yield struct.unpack('>BIBIB5sIBB', entry_data)
 
-    data = fp.read(4)  # What is this
+    # TODO: What is this?
+    data = fp.read(4)
     print(data)
     assert data.startswith(b'\x07')
 
