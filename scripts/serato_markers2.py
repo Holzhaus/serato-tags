@@ -52,7 +52,7 @@ class UnknownEntry(Entry):
 class BpmLockEntry(Entry):
     NAME = 'BPMLOCK'
     FIELDS = ('enabled',)
-    FMT = 'B'
+    FMT = '?'
 
     @classmethod
     def load(cls, data):
