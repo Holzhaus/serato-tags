@@ -9,7 +9,7 @@ You can also have a look at [this lengthy blog post](https://homepage.ruhr-uni-b
 | [`Serato Autotags`](docs/serato_autotags.md) | Done          | BPM and Gain values        | [`serato_autotags.py`](scripts/serato_autotags.py)
 | [`Serato BeatGrid`](docs/serato_beatgrid.md) | Mostly done   | Beatgrid Markers           | [`serato_beatgrid.py`](scripts/serato_beatgrid.py)
 | [`Serato Markers2`](docs/serato_markers2.md) | Mostly done   | Hotcues, Saved Loops, etc. | [`serato_markers2.py`](scripts/serato_markers2.py)
-| [`Serato Markers_`](docs/serato_markers_.md) | *Not started* |                            |
+| [`Serato Markers_`](docs/serato_markers_.md) | Started       | Hotcues, Saved Loops, etc. | [`serato_markers_.py`](scripts/serato_markers_.py)
 | [`Serato Offsets_`](docs/serato_offsets_.md) | *Not started* |                            |
 | [`Serato Overview`](docs/serato_overview.md) | Done          | Waveform data              | [`serato_overview.py`](scripts/serato_overview.py)
 
