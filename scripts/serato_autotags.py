@@ -30,9 +30,9 @@ def parse(fp):
         yield float(data.decode('ascii'))
 
 
-def dump(bpm, field2, field3):
+def dump(bpm, autogain, gaindb):
     data = struct.pack(FMT_VERSION, 0x01, 0x01)
-    for value, decimals in ((bpm, 2), (field2, 3), (field3, 3)):
+    for value, decimals in ((bpm, 2), (autogain, 3), (gaindb, 3)):
         data += '{:.{}f}'.format(value, decimals).encode('ascii')
         data += b'\x00'
     return data
@@ -57,7 +57,7 @@ def main(argv=None):
         fp = open(args.file, mode='rb')
 
     with fp:
-        bpm, field2, field3 = parse(fp)
+        bpm, autogain, gaindb = parse(fp)
 
     if args.edit:
         editor = shutil.which(os.getenv('EDITOR', 'vi'))
@@ -68,9 +68,9 @@ def main(argv=None):
         with tempfile.NamedTemporaryFile() as f:
             f.write((
                 'bpm: {}\n'
-                'field2: {}\n'
-                'field3: {}\n'
-            ).format(bpm, field2, field3).encode('ascii'))
+                'autogain: {}\n'
+                'gaindb: {}\n'
+            ).format(bpm, autogain, gaindb).encode('ascii'))
             f.flush()
             status = subprocess.call((editor, f.name))
             f.seek(0)
@@ -85,13 +85,13 @@ def main(argv=None):
         try:
             cp.read_string('[Autotags]\n' + output.decode())
             bpm = cp.getfloat('Autotags', 'bpm')
-            field2 = cp.getfloat('Autotags', 'field2')
-            field3 = cp.getfloat('Autotags', 'field3')
+            autogain = cp.getfloat('Autotags', 'autogain')
+            gaindb = cp.getfloat('Autotags', 'gaindb')
         except Exception:
             print('Invalid input, no changes made', file=sys.stderr)
             return 1
 
-        new_data = dump(bpm, field2, field3)
+        new_data = dump(bpm, autogain, gaindb)
         if tagfile:
             if tagfile is not None:
                 tagfile['GEOB:Serato Autotags'] = mutagen.id3.GEOB(
@@ -106,8 +106,8 @@ def main(argv=None):
                 fp.write(new_data)
     else:
         print('BPM: {}'.format(bpm))
-        print('field2: {}'.format(field2))
-        print('field3: {}'.format(field3))
+        print('Auto Gain: {}'.format(autogain))
+        print('Gain dB: {}'.format(gaindb))
 
     return 0
 
