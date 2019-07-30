@@ -59,7 +59,7 @@ class BpmLockEntry(Entry):
         return cls(*struct.unpack(cls.FMT, data))
 
     def dump(self):
-        return struct.pack(self.FMT, (getattr(self, f) for f in self.FIELDS))
+        return struct.pack(self.FMT, *(getattr(self, f) for f in self.FIELDS))
 
 
 class ColorEntry(Entry):
@@ -72,7 +72,7 @@ class ColorEntry(Entry):
         return cls(*struct.unpack(cls.FMT, data))
 
     def dump(self):
-        return struct.pack(self.FMT, (getattr(self, f) for f in self.FIELDS))
+        return struct.pack(self.FMT, *(getattr(self, f) for f in self.FIELDS))
 
 
 class CueEntry(Entry):
@@ -93,7 +93,7 @@ class CueEntry(Entry):
     def dump(self):
         struct_fields = self.FIELDS[:-1]
         return b''.join((
-            struct.pack(self.FMT, (getattr(self, f) for f in struct_fields)),
+            struct.pack(self.FMT, *(getattr(self, f) for f in struct_fields)),
             self.name.encode('utf-8'),
             b'\x00',
         ))
@@ -117,7 +117,7 @@ class LoopEntry(Entry):
     def dump(self):
         struct_fields = self.FIELDS[:-1]
         return b''.join((
-            struct.pack(self.FMT, (getattr(self, f) for f in struct_fields)),
+            struct.pack(self.FMT, *(getattr(self, f) for f in struct_fields)),
             self.name.encode('utf-8'),
             b'\x00',
         ))
