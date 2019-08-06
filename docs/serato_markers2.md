@@ -43,12 +43,16 @@ By storing the length explicitly instead of deriving it from the type, a parser 
 
 ### `BPMLOCK` entries
 
+`BPMLOCK` entries contain a single boolean value that determines if [Beatgrid is locked](https://support.serato.com/hc/en-us/articles/235214887-Lock-Beatgrids).
+
 | Offset | Length | Raw Value                 | Decoded Value | Type                    | Description
 | ------ | ------ | ------------------------- | ------------- | ----------------------- | -----------
 |   `00` |   `01` | `00`                      | False         | `uint8_t` (boolean)     | Beatgrid locked
 
 
 ### `COLOR` entries
+
+`COLOR` entries describe a track's color inside the tracklist.
 
 | Offset | Length | Raw Value                 | Decoded Value | Type                    | Description
 | ------ | ------ | ------------------------- | ------------- | ----------------------- | -----------
@@ -57,6 +61,8 @@ By storing the length explicitly instead of deriving it from the type, a parser 
 
 
 ### `CUE` entries
+
+Each `CUE` entry contains information about a [cue point](https://support.serato.com/hc/en-us/articles/360000067696-Cue-Points).
 
 | Offset | Length | Raw Value                 | Decoded Value | Type                                | Description
 | ------ | ------ | ------------------------- | ------------- | ----------------------------------- | -----------
@@ -70,6 +76,8 @@ By storing the length explicitly instead of deriving it from the type, a parser 
 
 
 ### `LOOP` entries
+
+`LOOP` entries are used to store [saved loops](https://serato.com/latest/blog/17885/pro-tip-trigger-saved-loops).
 
 | Offset | Length | Raw Value                 | Decoded Value | Type                                | Description
 | ------ | ------ | ------------------------- | ------------- | ----------------------------------- | -----------
