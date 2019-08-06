@@ -1,34 +1,31 @@
 # Serato Markers2
 
-    $ hexdump -C Serato\ Markers2.octet-stream
-    00000000  01 01 41 51 46 44 54 30  78 50 55 67 41 41 41 41  |..AQFDT0xPUgAAAA|
-    00000010  41 45 41 50 2f 2f 2f 30  4a 51 54 55 78 50 51 30  |AEAP///0JQTUxPQ0|
-    00000020  73 41 41 41 41 41 41 51  41 41 00 00 00 00 00 00  |sAAAAAAQAA......|
-    00000030  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-    *
-    000001d0  00 00 00 00 00 00                                 |......|
-    000001d6
+This tag stores various kinds of track "markers" like Cue Points, Saved Loops, Flips.
+It also stores information about the tracks' color in the tracklist and if the track's beatgrid is locked.
+
+The tag contains a two-byte tag header, followed by base64-encoded binary data.
+If the content is very long, a linefeed character (`0a`) is inserted into the base64 string every 72 bytes.
+For some unknown reason, Serato may produce a base64 string that is 1 byte longer than a multiple of 4 (i.e. an invalid base64 string).
+In that case, you can just append an `A` (of `A==` if you use padding) before decoding it.
+
+The minimum length of this tag seems to be 470 bytes, and shorter contents are padded with null bytes.
 
 | Offset | Length | Raw Value                 | Decoded Value | Type                    | Description
 | ------ | ------ | ------------------------- | ------------- | ----------------------- | -----------
-|   `00` |   `02` | `01 01`                   |               | *?* (2 bytes)           |
-|   `02` |   `28` | `41 51` ... `41 41`       | *see below*   | base64-encoded data     | 
-|   `2a` |  `1ac` | `00`                      |               | ASCII (null-terminated) |
+|   `00` |   `02` | `01 01`                   |               | *?* (2 bytes)           | Tag Header
+|   `02` |   `28` | `41 51` ... `41 41`       | *see below*   | base64-encoded data     | Data
+|   `2a` |  `1ac` | `00`                      |               |                         | Padding
 
-## Base64-encoded Part
-
-The base64-encoded content starts with `01 01`, followed by multiple data entries.
+The base64-encoded content starts with `01 01`, followed by multiple marker entries.
 
     $ grep -Poaz '[\w/]*' Serato\ Markers2.octet-stream | tr -d '\0' | base64 -d | hexdump -C
     00000000  01 01 43 4f 4c 4f 52 00  00 00 00 04 00 ff ff ff  |..COLOR.........|
     00000010  42 50 4d 4c 4f 43 4b 00  00 00 00 01 00 00        |BPMLOCK.......|
     0000001e
 
-The content ends with a single null byte (`00`).
+The base64-encoded content ends with a single null byte (`00`).
 
-If the content is very long, a linefeed character (`0a`) is inserted into the base64 string every 72 bytes.
-For some unknown reason, Serato may produce a base64 string that is 1 byte longer than a multiple of 4 (i.e. an invalid base64 string).
-In that case, you can just append an `A` (of `A==` if you use padding) before decoding it.
+
 
 ### `BPMLOCK` entries
 
