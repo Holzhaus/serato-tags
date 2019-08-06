@@ -25,50 +25,58 @@ The base64-encoded content starts with `01 01`, followed by multiple marker entr
 
 The base64-encoded content ends with a single null byte (`00`).
 
+## Marker Entries
+
+Each entry is described by a header that contains type and length.
+The type is a null-terminated ASCII string.
+
+The length of the entry's data depends heavily on the entry type.
+`BPMLOCK` entries contain only a single byte of data, while `FLIP` might become quite large.
+By storing the length explicitly instead of deriving it from the type, a parser could ignore unknown entry types and still be able to parse known ones.
+
+| Offset | Length | Raw Value                 | Decoded Value | Type                    | Description
+| ------ | ------ | ------------------------- | ------------- | ----------------------- | -----------
+|   `00` |   `08` | `42 50 4d 4c 4f 43 4b 00` | `BPMLOCK`     | ASCII (null-terminated) | Type
+|   `08` |   `04` | `00 00 00 01`             | 1             | `uint32_t`              | Length in bytes
+|   `0c` |   `01` | `01`                      |               | See below               | Data
 
 
 ### `BPMLOCK` entries
 
 | Offset | Length | Raw Value                 | Decoded Value | Type                    | Description
 | ------ | ------ | ------------------------- | ------------- | ----------------------- | -----------
-|   `00` |   `08` | `42 50 4d 4c 4f 43 4b 00` | `BPMLOCK`     | ASCII (null-terminated) | Entry type
-|   `08` |   `04` | `00 00 00 01`             | 1             | `uint32_t`              | Entry length
-|   `0c` |   `01` | `00`                      | False         | `uint8_t` (boolean)     | [Beatgrid locked](https://support.serato.com/hc/en-us/articles/235214887-Lock-Beatgrids)
+|   `00` |   `01` | `00`                      | False         | `uint8_t` (boolean)     | Beatgrid locked
+
 
 ### `COLOR` entries
 
 | Offset | Length | Raw Value                 | Decoded Value | Type                    | Description
 | ------ | ------ | ------------------------- | ------------- | ----------------------- | -----------
-|   `00` |   `06` | `43 4f 4c 4f 52 00`       | `COLOR`       | ASCII (null-terminated) | Entry type
-|   `06` |   `04` | `00 00 00 04`             | 4             | `uint32_t`              | Entry length
-|   `0a` |   `01` | `00`                      |               |                         |
-|   `0c` |   `03` | `99 ff 99`                | `#99FF99`     | 3-byte RGB value        | Tracklist color
+|   `00` |   `01` | `00`                      |               |                         |
+|   `01` |   `03` | `99 ff 99`                | `#99FF99`     | 3-byte RGB value        | Tracklist color
 
 
 ### `CUE` entries
 
 | Offset | Length | Raw Value                 | Decoded Value | Type                                | Description
 | ------ | ------ | ------------------------- | ------------- | ----------------------------------- | -----------
-|   `00` |   `04` | `43 55 45 00`             | `CUE`         | ASCII (null-terminated)             | Entry type
-|   `04` |   `04` | `00 00 00 0d`             | 13            | `uint32_t`                          | Entry length
-|   `08` |   `01` | `00`                      |               |                                     |
-|   `09` |   `01` | `00`                      | 0             | `uint8_t`                           | Hotcue index
-|   `0a` |   `04` | `00 00 00 00`             | 0             | `uint32_t`                          | Position in milliseconds
-|   `0e` |   `01` | `00`                      |               |                                     |
-|   `0f` |   `03` | `cc 00 00`                | `#CC0000`     | 3-byte RGB value                    | Hotcue color
-|   `12` |   `03` | `00 00`                   |               |                                     |
-|   `14` |   `01` | `00`                      | ``            | UTF-8 (max. 50 bytes + nullbyte)    | Hotcue name
+|   `00` |   `01` | `00`                      |               |                                     |
+|   `01` |   `01` | `00`                      | 0             | `uint8_t`                           | Index
+|   `02` |   `04` | `00 00 00 00`             | 0             | `uint32_t`                          | Position in milliseconds
+|   `06` |   `01` | `00`                      |               |                                     |
+|   `07` |   `03` | `cc 00 00`                | `#CC0000`     | 3-byte RGB value                    | Color
+|   `0a` |   `02` | `00 00`                   |               |                                     |
+|   `0c` |   `01` | `00`                      | ``            | UTF-8 (max. 50 bytes + null byte)   | Name
+
 
 ### `LOOP` entries
 
 | Offset | Length | Raw Value                 | Decoded Value | Type                                | Description
 | ------ | ------ | ------------------------- | ------------- | ----------------------------------- | -----------
-|   `00` |   `05` | `4c 4f 4f 50 00`          | `LOOP`        | ASCII (null-terminated)             | Entry type
-|   `05` |   `04` | `00 00 00 15`             | 21            | `uint32_t`                          | Entry length
-|   `09` |   `01` | `00`                      |               |                                     |
-|   `0a` |   `01` | `00`                      | 0             | `uint8_t`                           | Loop index
-|   `0b` |   `04` | `00 00 00 00`             | 0             | `uint32_t`                          | Start Position in milliseconds
-|   `0f` |   `04` | `00 00 08 26`             | 2086          | `uint32_t`                          | End Position in milliseconds
-|   `13` |   `01` | `00`                      |               |                                     |
-|   `14` |   `01` | `00`                      | False         | `uint8_t` (boolean)                 | Loop locked
-|   `15` |   `01` | `00`                      | ``            | UTF-8 (max. 32747 bytes + nullbyte) | Loop name
+|   `00` |   `01` | `00`                      |               |                                     |
+|   `01` |   `01` | `00`                      | 0             | `uint8_t`                           | Index
+|   `02` |   `04` | `00 00 00 00`             | 0             | `uint32_t`                          | Start Position in milliseconds
+|   `06` |   `04` | `00 00 08 26`             | 2086          | `uint32_t`                          | End Position in milliseconds
+|   `0a` |   `01` | `00`                      |               |                                     |
+|   `0b` |   `01` | `00`                      | False         | `uint8_t` (boolean)                 | Locked
+|   `0c` |   `01` | `00`                      | ``            | UTF-8 (max. 32747 bytes + nullbyte) | Name
