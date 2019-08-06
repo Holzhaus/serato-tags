@@ -105,7 +105,7 @@ Each `CUE` entry contains information about a [cue point](https://support.serato
 |   `13` |   `a8` | `00 00` .. `04 7c`        |               | See below                           | Subentries
 
 
-#### Subentries of `FLIP entries`
+#### Subentries of `FLIP` entries
 
 Each subentry starts with a header that contains its type and length.
 It's unknown if type `0x00` is an actual single-byte value or if it's an empty, null-terminated string.
