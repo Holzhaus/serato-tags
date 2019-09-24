@@ -77,30 +77,30 @@ Each `CUE` entry contains information about a [cue point](https://support.serato
 
 `LOOP` entries are used to store [saved loops](https://serato.com/latest/blog/17885/pro-tip-trigger-saved-loops).
 
-| Offset   |              Length | Raw Value                 | Decoded Value | Type                                | Description
-| -------- | ------------------- | ------------------------- | ------------- | ----------------------------------- | -----------
-| `00`     |                `01` | `00`                      |               |                                     |
-| `01`     |                `01` | `00`                      | 0             | `uint8_t`                           | Index
-| `02`     |                `04` | `00 00 00 00`             | 0             | `uint32_t`                          | Start Position in milliseconds
-| `06`     |                `04` | `00 00 08 26`             | 2086          | `uint32_t`                          | End Position in milliseconds
-| `0a`     |                `01` | `00`                      |               |                                     |
-| `0b`     |                `01` | `00`                      | False         | `uint8_t` (boolean)                 | Locked
-| `0c`     | `01` <= X <= `7fec` | `00`                      | ``            | UTF-8 (max. 32747 bytes + nullbyte) | Name
+| Offset   |              Length | Raw Value                 | Decoded Value | Type                    | Description
+| -------- | ------------------- | ------------------------- | ------------- | ----------------------- | -----------
+| `00`     |                `01` | `00`                      |               |                         |
+| `01`     |                `01` | `00`                      | 0             | `uint8_t`               | Index
+| `02`     |                `04` | `00 00 00 00`             | 0             | `uint32_t`              | Start Position in milliseconds
+| `06`     |                `04` | `00 00 08 26`             | 2086          | `uint32_t`              | End Position in milliseconds
+| `0a`     |                `01` | `00`                      |               |                         |
+| `0b`     |                `01` | `00`                      | False         | `uint8_t` (boolean)     | Locked
+| `0c`     | `01` <= X <= `7fec` | `00`                      | ``            | UTF-8 (null-terminated) | Name
 
 
 ### `FLIP` entries
 
 `FLIP` entries are used for storing [Serato Flip](https://serato.com/dj/pro/expansions/flip) performances.
 
-| Offset   |              Length | Raw Value                 | Decoded Value | Type                                | Description
-| -------- | ------------------- | ------------------------- | ------------- | ----------------------------------- | -----------
-| `00`     |                `01` | `00`                      |               |                                     |
-| `01`     |                `01` | `00`                      | 0             | `uint8_t`                           | Index
-| `02`     |                `01` | `00`                      | False         | `uint8_t` (boolean)                 | Enabled
-| `03`     |   `01` <= X <= `0b` | `41 41`... `41 41 00`     | `AA` .. `AA`  | UTF-8 (null-terminated)             | Name
-| `03` + X |                `01` | `00`                      | False         | `uint8_t` (boolean)                 | Loop
-| `04` + X |                `04` | `00 00 00 08`             |               | `uint32_t`                          | Number of subentries
-| `08` + X |                   Y | `00 00` .. `04 7c`        |               | See below                           | Subentries
+| Offset   |              Length | Raw Value                 | Decoded Value | Type                    | Description
+| -------- | ------------------- | ------------------------- | ------------- | ----------------------- | -----------
+| `00`     |                `01` | `00`                      |               |                         |
+| `01`     |                `01` | `00`                      | 0             | `uint8_t`               | Index
+| `02`     |                `01` | `00`                      | False         | `uint8_t` (boolean)     | Enabled
+| `03`     |   `01` <= X <= `0b` | `41 41`... `41 41 00`     | `AA` .. `AA`  | UTF-8 (null-terminated) | Name
+| `03` + X |                `01` | `00`                      | False         | `uint8_t` (boolean)     | Loop
+| `04` + X |                `04` | `00 00 00 08`             |               | `uint32_t`              | Number of subentries
+| `08` + X |                   Y | `00 00` .. `04 7c`        |               | See below               | Subentries
 
 
 #### Subentries of `FLIP` entries
@@ -108,11 +108,11 @@ Each `CUE` entry contains information about a [cue point](https://support.serato
 Each subentry starts with a header that contains its type and length.
 It's unknown if type `0x00` is an actual single-byte value or if it's an empty, null-terminated string.
 
-| Offset   |              Length | Raw Value                 | Decoded Value | Type                                | Description
-| -------- | ------------------- | ------------------------- | ------------- | ----------------------------------- | -----------
-| `00`     |                `01` | `00`                      | 0             | `uint8_t` (?)                       | Type (?)
-| `01`     |                `04` | `00 00 00 10`             | 16            | `uint32_t`                          | Length
-| `05`     |                `10` | `40 35` .. `7a e1`        |            .  | See below                           | Data
+| Offset   |              Length | Raw Value                 | Decoded Value | Type                    | Description
+| -------- | ------------------- | ------------------------- | ------------- | ----------------------- | -----------
+| `00`     |                `01` | `00`                      | 0             | `uint8_t` (?)           | Type (?)
+| `01`     |                `04` | `00 00 00 10`             | 16            | `uint32_t`              | Length
+| `05`     |                `10` | `40 35` .. `7a e1`        |            .  | See below               | Data
 
 
 ##### Subentries of type `0`
@@ -120,7 +120,7 @@ It's unknown if type `0x00` is an actual single-byte value or if it's an empty, 
 Subentries of type `0` are 16 bytes long and consist of two `double` precision floating point values.
 The first values denotes the absolute position in the track where a jump occurs, the second value is the jump target.
 
-| Offset   |              Length | Raw Value                 | Decoded Value | Type                                | Description
-| -------- | ------------------- | ------------------------- | ------------- | ----------------------------------- | -----------
-| `00`     |                `08` | `40 35 30 04 85 6e 43 e2` | 21.187568...  | `double` (binary64)                 | Source position in seconds
-| `08`     |                `08` | `40 4b 51 47 ae 14 7a e1` | 54.635        | `double` (binary64)                 | Target position in seconds
+| Offset   |              Length | Raw Value                 | Decoded Value | Type                    | Description
+| -------- | ------------------- | ------------------------- | ------------- | ----------------------- | -----------
+| `00`     |                `08` | `40 35 30 04 85 6e 43 e2` | 21.187568...  | `double` (binary64)     | Source position in seconds
+| `08`     |                `08` | `40 4b 51 47 ae 14 7a e1` | 54.635        | `double` (binary64)     | Target position in seconds
