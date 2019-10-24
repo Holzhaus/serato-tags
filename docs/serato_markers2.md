@@ -183,9 +183,9 @@ In contrast to Serato DJ Intro which just displays the colors unchanged, both Se
 | 10 |       7 | ![00CCCC](http://dummyimage.com/20x20/00CCCC/00CCCC.gif) `#00CCCC` | ![1DBEBD](http://dummyimage.com/20x20/1DBEBD/1DBEBD.gif) `#1DBEBD` |
 | 11 |         | ![0088CC](http://dummyimage.com/20x20/0088CC/0088CC.gif) `#0088CC` | ![0F88CA](http://dummyimage.com/20x20/0F88CA/0F88CA.gif) `#0F88CA` |
 | 12 |         | ![0044CC](http://dummyimage.com/20x20/0044CC/0044CC.gif) `#0044CC` | ![16308B](http://dummyimage.com/20x20/16308B/16308B.gif) `#16308B` |
-| 12 |       3 | ![0000CC](http://dummyimage.com/20x20/0000CC/0000CC.gif) `#0000CC` | ![173BA2](http://dummyimage.com/20x20/173BA2/173BA2.gif) `#173BA2` |
-| 13 |         | ![4400CC](http://dummyimage.com/20x20/4400CC/4400CC.gif) `#4400CC` | ![5C3F97](http://dummyimage.com/20x20/5C3F97/5C3F97.gif) `#5C3F97` |
-| 14 |       8 | ![8800CC](http://dummyimage.com/20x20/8800CC/8800CC.gif) `#8800CC` | ![6823B6](http://dummyimage.com/20x20/6823B6/6823B6.gif) `#6823B6` |
-| 15 |       6 | ![CC00CC](http://dummyimage.com/20x20/CC00CC/CC00CC.gif) `#CC00CC` | ![CE359E](http://dummyimage.com/20x20/CE359E/CE359E.gif) `#CE359E` |
-| 16 |         | ![CC0088](http://dummyimage.com/20x20/CC0088/CC0088.gif) `#CC0088` | ![DC1D49](http://dummyimage.com/20x20/DC1D49/DC1D49.gif) `#DC1D49` |
-| 17 |         | ![CC0044](http://dummyimage.com/20x20/CC0044/CC0044.gif) `#CC0044` | ![C71136](http://dummyimage.com/20x20/C71136/C71136.gif) `#C71136` |
+| 13 |       3 | ![0000CC](http://dummyimage.com/20x20/0000CC/0000CC.gif) `#0000CC` | ![173BA2](http://dummyimage.com/20x20/173BA2/173BA2.gif) `#173BA2` |
+| 14 |         | ![4400CC](http://dummyimage.com/20x20/4400CC/4400CC.gif) `#4400CC` | ![5C3F97](http://dummyimage.com/20x20/5C3F97/5C3F97.gif) `#5C3F97` |
+| 15 |       8 | ![8800CC](http://dummyimage.com/20x20/8800CC/8800CC.gif) `#8800CC` | ![6823B6](http://dummyimage.com/20x20/6823B6/6823B6.gif) `#6823B6` |
+| 16 |       6 | ![CC00CC](http://dummyimage.com/20x20/CC00CC/CC00CC.gif) `#CC00CC` | ![CE359E](http://dummyimage.com/20x20/CE359E/CE359E.gif) `#CE359E` |
+| 17 |         | ![CC0088](http://dummyimage.com/20x20/CC0088/CC0088.gif) `#CC0088` | ![DC1D49](http://dummyimage.com/20x20/DC1D49/DC1D49.gif) `#DC1D49` |
+| 18 |         | ![CC0044](http://dummyimage.com/20x20/CC0044/CC0044.gif) `#CC0044` | ![C71136](http://dummyimage.com/20x20/C71136/C71136.gif) `#C71136` |
