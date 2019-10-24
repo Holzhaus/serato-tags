@@ -135,6 +135,12 @@ In contrast to Serato DJ Intro which just displays the colors unchanged, both Se
 
 ### Serato DJ Intro
 
+Serato DJ Intro lets the user choose from a palette of 18 different colors.
+
+![Serato DJ Pro color picker](serato-dj-intro-colors.png)
+
+This is the only Serato variant that displays the colors exactly like they are saved (i.e. without applying any transformation/colorscheme).
+
 |  # | Hot Cue | Saved                                                              | Displayed                                                          |
 | -- | ------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ |
 |  1 |       1 | ![CC0000](http://dummyimage.com/20x20/CC0000/CC0000.gif) `#CC0000` | ![CC0000](http://dummyimage.com/20x20/CC0000/CC0000.gif) `#CC0000` |
@@ -159,6 +165,12 @@ In contrast to Serato DJ Intro which just displays the colors unchanged, both Se
 
 ### Serato DJ Lite
 
+Serato DJ Lite only has 4 hotcues with predefined, unchangeable colors.
+
+![Serato DJ Pro color picker](serato-dj-lite-colors.png)
+
+Like Serato DJ Pro, the Lite version has a slight difference between saved and displayed colors (see below).
+
 |  # | Hot Cue | Saved                                                              | Displayed                                                          |
 | -- | ------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ |
 |  1 |       1 | ![CC0000](http://dummyimage.com/20x20/CC0000/CC0000.gif) `#CC0000` | ![C02626](http://dummyimage.com/20x20/C02626/C02626.gif) `#C02626` |
@@ -168,6 +180,12 @@ In contrast to Serato DJ Intro which just displays the colors unchanged, both Se
 
 
 ### Serato DJ Pro
+
+Serato DJ Pro's color picker features 18 different colors:
+
+![Serato DJ Pro color picker](serato-dj-pro-colors.png)
+
+In contrast to Serato DJ Intro, the saved and displayed colors are slightly different, probably to be a better match for the GUI's colorscheme.
 
 |  # | Hot Cue | Saved                                                              | Displayed                                                          |
 | -- | ------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ |
