@@ -101,9 +101,9 @@ class CueEntry(Entry):
 
 class LoopEntry(Entry):
     NAME = 'LOOP'
-    FMT = '>cBII8sB?'
+    FMT = '>cBII4s4sB?'
     FIELDS = ('field1', 'index', 'startposition', 'endposition', 'field5',
-              'field6', 'locked', 'name',)
+              'field6', 'color', 'locked', 'name',)
 
     @classmethod
     def load(cls, data):
