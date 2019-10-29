@@ -13,6 +13,9 @@ You can also have a look at [this lengthy blog post](https://homepage.ruhr-uni-b
 | [`Serato Offsets_`](docs/serato_offsets_.md) | *Not started* |                            |
 | [`Serato Overview`](docs/serato_overview.md) | Done          | Waveform data              | [`serato_overview.py`](scripts/serato_overview.py)
 
+The different file/tag formats that Serato uses to store the information are documented in [`docs/fileformats.md`](docs/fileformats.md), a script to dump the tag data can be found at [`scripts/tagdump.py`](scripts/tagdump.py).
+
+
 ## License
 
 As example file I used [Perséphone - Retro Funky (SUNDANCE remix)](https://soundcloud.com/sundancemusic/pers-phone-retro-funky), which is licensed under the term of the [Creative Commons Attribution 3.0 Unported (CC BY 3.0) license](https://creativecommons.org/licenses/by/3.0/).
