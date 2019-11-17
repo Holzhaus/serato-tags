@@ -130,7 +130,7 @@ The first values denotes the absolute position in the track where a jump occurs,
 
 ## Colors
 
-The on-screen representation of hotcue colors present in the the `Serato Markers2` can differ slightly depending on wether Serato DJ Pro, Serato DJ Lite or Serato DJ Intro is used.
+The on-screen representation of hotcue colors can differ slightly from what's stored in the `Serato Markers2` tag depending on wether Serato DJ Pro, Serato DJ Lite or Serato DJ Intro is used.
 In contrast to Serato DJ Intro which just displays the colors unchanged, both Serato DJ Lite and Serato DJ Pro apply some kind of transformation or colorscheme, so that the actual color of the hotcue and the color show in the GUI are not the same.
 
 
