@@ -15,6 +15,23 @@ FIELDPARSERS = {
     'u': lambda x: struct.unpack('>I', x)[0],
 }
 
+FIELDNAMES = {
+    'vrsn': 'Version',
+    'trk': 'Track',
+    'typ': 'File Type',
+    'fil': 'File Name',
+    'sng': 'Song Title',
+    'len': 'Length',
+    'siz': 'File Size',
+    'bit': 'Bitrate',
+    'smp': 'Sample Rate',
+    'bpm': 'BPM',
+    'add': 'Date added',
+    'key': 'Key',
+    'fsb': 'File Size',
+    'bgl': 'Beatgrid Locked',
+}
+
 
 def parse(fp):
     for i, header in enumerate(iter(lambda: fp.read(8), b'')):
@@ -48,16 +65,20 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     for name, type_id, length, value in parse(args.file):
+        fieldname = FIELDNAMES.get(name, 'Unknown')
         if isinstance(value, tuple):
-            print('{name}[{type_id}] ({length} B)'.format(
+            print('{name}[{type_id}] ({fieldname}, {length} B)'.format(
                 name=name,
                 type_id=type_id,
+                fieldname=fieldname,
                 length=length,
             ))
             for name, type_id, length, value in value:
-                print('  {name}[{type_id}] ({length} B): {value!r}'.format(
+                fieldname = FIELDNAMES.get(name, 'Unknown')
+                print('  {name}[{type_id}] ({fieldname}, {length} B): {value!r}'.format(
                     name=name,
                     type_id=type_id,
+                    fieldname=fieldname,
                     length=length,
                     value=value,
                 ))
@@ -66,6 +87,7 @@ def main(argv=None):
                 name=name,
                 type_id=type_id,
                 length=length,
+                fieldname=fieldname,
                 value=value,
             ))
 
