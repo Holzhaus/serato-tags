@@ -10,6 +10,7 @@ FIELDPARSERS = {
     'b': lambda x: struct.unpack('?', x)[0],
     'o': lambda x: tuple(parse(io.BytesIO(x))),
     'p': lambda x: (x[1:] + b'\00').decode('utf-16'),
+    'r': lambda x: tuple(parse(io.BytesIO(x))),
     's': lambda x: struct.unpack('>H', x)[0],
     't': lambda x: (x[1:] + b'\00').decode('utf-16'),
     'u': lambda x: struct.unpack('>I', x)[0],
