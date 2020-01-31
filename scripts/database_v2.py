@@ -17,6 +17,7 @@ FIELDPARSERS = {
 }
 
 FIELDNAMES = {
+    # Database
     'vrsn': 'Version',
     'otrk': 'Track',
     'ttyp': 'File Type',
@@ -33,6 +34,13 @@ FIELDNAMES = {
     'tart': 'Artist',
     'utme': 'File Time',
     'bmis': 'Missing',
+    # Crates
+    'osrt': 'Sorting',
+    'brev': 'Reverse Order',
+    'ovct': 'Column Title',
+    'tvcn': 'Column Name',
+    'tvcw': 'Column Width',
+    'ptrk': 'Track Path',
 }
 
 
