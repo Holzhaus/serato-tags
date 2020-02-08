@@ -1,8 +1,11 @@
 # Serato Markers_
 
-The `Serato Markers_` tag stores information about Cues and Loops.
+The `Serato Markers_` tag stores information about the first 5 Cues and 9
+Loops.  This is redunant with some of the information from the [`Serato
+Markers2`](serato_markers2.md) tag. Serato will prefer information from `Serato
+Markers_` if it's present.
 
-The tag data consists of a header followed by 0 or more entries and a single footer byte.
+The tag data consists of a header followed by 14 entries and 4 footer bytes.
 
 Every entry is apparently 22 (= 0x16) bytes long.
 
