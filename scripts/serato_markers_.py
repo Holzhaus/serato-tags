@@ -40,6 +40,32 @@ def color_to_rgb(data):
     return struct.pack('BBB', r, g, b)
 
 
+class Footer(object):
+    FMT = '>4s'
+    FIELDS = ('data',)
+
+    def __init__(self, *args):
+        assert len(args) == len(self.FIELDS)
+        for field, value in zip(self.FIELDS, args):
+            setattr(self, field, value)
+
+    def __repr__(self):
+        return '{name}({data})'.format(
+            name=self.__class__.__name__,
+            data=', '.join('{}={!r}'.format(name, getattr(self, name))
+                           for name in self.FIELDS))
+
+    @classmethod
+    def load(cls, data):
+        info_size = struct.calcsize(cls.FMT)
+        info = struct.unpack(cls.FMT, data[:info_size])
+        return cls(*info)
+
+    def dump(self):
+        return struct.pack(self.FMT, *(
+            getattr(self, field) for field in self.FIELDS
+        ))
+
 class Entry(object):
     FMT = '>BI1sI6s4sBB'
     FIELDS = ('is_set', 'start_position', 'field3', 'end_position', 'field5',
@@ -106,7 +132,7 @@ def parse(fp):
         entry = Entry.load(entry_data)
         yield entry
 
-    assert fp.read() == b'\x00\x7F\x7F\x7F'
+    yield Footer.load(fp.read())
 
 
 def dump(new_entries):
@@ -197,12 +223,18 @@ def main(argv=None):
                         else:
                             if action == 'a':
                                 entries_to_edit = ((
-                                    '{:{}d}: {!r}'.format(i, width, e.type),
+                                    '{:{}d}: {}'.format(
+                                        i, width,
+                                        repr(e.type) if e.__class__ == Entry
+                                        else 'Footer'),
                                     e,
                                 ) for i, e in enumerate(
                                     entries[entry_index:], start=entry_index))
                             else:
-                                entries_to_edit = ((repr(entry.type), entry),)
+                                entries_to_edit = (
+                                    (repr(entry.type)
+                                     if entry.__class__ == Entry else 'Footer',
+                                     entry),)
 
                             for section, e in entries_to_edit:
                                 f.write('[{}]\n'.format(section).encode())
@@ -237,12 +269,15 @@ def main(argv=None):
 
                                 results = []
                                 for section in sections:
-                                    e = Entry(*(
+                                    l, s, r = section.partition(': ')
+                                    name = r if s else l
+                                    cls = Footer if name == 'Footer' else Entry
+                                    e = cls(*(
                                         ast.literal_eval(
                                             cp.get(section, field),
-                                        ) for field in Entry.FIELDS
+                                        ) for field in cls.FIELDS
                                     ))
-                                    results.append(Entry.load(e.dump()))
+                                    results.append(cls.load(e.dump()))
                             else:
                                 results = [entry.load(output)]
                         except Exception as e:
