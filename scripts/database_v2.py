@@ -17,34 +17,43 @@ FIELDPARSERS = {
 }
 
 FIELDNAMES = {
+    # Database
     'vrsn': 'Version',
-    'trk': 'Track',
-    'typ': 'File Type',
-    'fil': 'File Name',
-    'sng': 'Song Title',
-    'len': 'Length',
-    'siz': 'File Size',
-    'bit': 'Bitrate',
-    'smp': 'Sample Rate',
-    'bpm': 'BPM',
-    'add': 'Date added',
-    'key': 'Key',
-    'fsb': 'File Size',
-    'bgl': 'Beatgrid Locked',
+    'otrk': 'Track',
+    'ttyp': 'File Type',
+    'pfil': 'File Path',
+    'tsng': 'Song Title',
+    'tlen': 'Length',
+    'tbit': 'Bitrate',
+    'tsmp': 'Sample Rate',
+    'tbpm': 'BPM',
+    'tadd': 'Date added',
+    'uadd': 'Date added',
+    'tkey': 'Key',
+    'bbgl': 'Beatgrid Locked',
+    'tart': 'Artist',
+    'utme': 'File Time',
+    'bmis': 'Missing',
+    # Crates
+    'osrt': 'Sorting',
+    'brev': 'Reverse Order',
+    'ovct': 'Column Title',
+    'tvcn': 'Column Name',
+    'tvcw': 'Column Width',
+    'ptrk': 'Track Path',
 }
 
 
 def parse(fp):
     for i, header in enumerate(iter(lambda: fp.read(8), b'')):
         assert len(header) == 8
-        type_id_ascii, name_ascii, length = struct.unpack('>c3sI', header)
+        name_ascii, length = struct.unpack('>4sI', header)
 
-        type_id = type_id_ascii.decode('ascii')
         name = name_ascii.decode('ascii')
+        type_id = name[0]
 
         # vrsn field has no type_id, but contains text
-        if type_id == 'v' and name == 'rsn':
-            name = 'vrsn'
+        if name == 'vrsn':
             type_id = 't'
 
         data = fp.read(length)
@@ -57,7 +66,7 @@ def parse(fp):
         else:
             value = fieldparser(data)
 
-        yield name, type_id, length, value
+        yield name, length, value
 
 
 def main(argv=None):
@@ -65,28 +74,25 @@ def main(argv=None):
     parser.add_argument('file', metavar='FILE', type=argparse.FileType('rb'))
     args = parser.parse_args(argv)
 
-    for name, type_id, length, value in parse(args.file):
+    for name, length, value in parse(args.file):
         fieldname = FIELDNAMES.get(name, 'Unknown')
         if isinstance(value, tuple):
-            print('{name}[{type_id}] ({fieldname}, {length} B)'.format(
+            print('{name} ({fieldname}, {length} B)'.format(
                 name=name,
-                type_id=type_id,
                 fieldname=fieldname,
                 length=length,
             ))
-            for name, type_id, length, value in value:
+            for name, length, value in value:
                 fieldname = FIELDNAMES.get(name, 'Unknown')
-                print('  {name}[{type_id}] ({fieldname}, {length} B): {value!r}'.format(
+                print('  {name} ({fieldname}, {length} B): {value!r}'.format(
                     name=name,
-                    type_id=type_id,
                     fieldname=fieldname,
                     length=length,
                     value=value,
                 ))
         else:
-            print('{name}[{type_id}] ({length} B): {value!r}'.format(
+            print('{name} ({length} B): {value!r}'.format(
                 name=name,
-                type_id=type_id,
                 length=length,
                 fieldname=fieldname,
                 value=value,
