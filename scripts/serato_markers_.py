@@ -40,32 +40,6 @@ def color_to_rgb(data):
     return struct.pack('BBB', r, g, b)
 
 
-class Footer(object):
-    FMT = '>4s'
-    FIELDS = ('data',)
-
-    def __init__(self, *args):
-        assert len(args) == len(self.FIELDS)
-        for field, value in zip(self.FIELDS, args):
-            setattr(self, field, value)
-
-    def __repr__(self):
-        return '{name}({data})'.format(
-            name=self.__class__.__name__,
-            data=', '.join('{}={!r}'.format(name, getattr(self, name))
-                           for name in self.FIELDS))
-
-    @classmethod
-    def load(cls, data):
-        info_size = struct.calcsize(cls.FMT)
-        info = struct.unpack(cls.FMT, data[:info_size])
-        return cls(*info)
-
-    def dump(self):
-        return struct.pack(self.FMT, *(
-            getattr(self, field) for field in self.FIELDS
-        ))
-
 class Entry(object):
     FMT = '>BI1sI6s4sBB'
     FIELDS = ('is_set', 'start_position', 'field3', 'end_position', 'field5',
@@ -91,7 +65,7 @@ class Entry(object):
             if field == 'is_set':
                 assert value in (0x00, 0x7F)
                 value = True if not value else False
-            elif field == 'color':
+            elif field in ('color', 'color_mask'):
                 value = color_to_rgb(value)
             elif field == 'start_position' and value == 0x7F7F7F7F:
                 value = None
@@ -109,7 +83,7 @@ class Entry(object):
             value = getattr(self, field)
             if field == 'is_set':
                 value = 0x7F if not value else 0x00
-            elif field == 'color':
+            elif field in ('color', 'color_mask'):
                 value = color_from_rgb(value)
             elif field == 'start_position' and value is None:
                 value = 0x7F7F7F7F
@@ -119,6 +93,11 @@ class Entry(object):
                 value = int(value)
             entry_data.append(value)
         return struct.pack(self.FMT, *entry_data)
+
+
+class Color(Entry):
+    FMT = '>4s'
+    FIELDS = ('color_mask',)
 
 
 def parse(fp):
@@ -132,7 +111,7 @@ def parse(fp):
         entry = Entry.load(entry_data)
         yield entry
 
-    yield Footer.load(fp.read())
+    yield Color.load(fp.read())
 
 
 def dump(new_entries):
@@ -226,14 +205,14 @@ def main(argv=None):
                                     '{:{}d}: {}'.format(
                                         i, width,
                                         repr(e.type) if e.__class__ == Entry
-                                        else 'Footer'),
+                                        else 'Color'),
                                     e,
                                 ) for i, e in enumerate(
                                     entries[entry_index:], start=entry_index))
                             else:
                                 entries_to_edit = (
                                     (repr(entry.type)
-                                     if entry.__class__ == Entry else 'Footer',
+                                     if entry.__class__ == Entry else 'Color',
                                      entry),)
 
                             for section, e in entries_to_edit:
@@ -271,7 +250,7 @@ def main(argv=None):
                                 for section in sections:
                                     l, s, r = section.partition(': ')
                                     name = r if s else l
-                                    cls = Footer if name == 'Footer' else Entry
+                                    cls = Color if name == 'Color' else Entry
                                     e = cls(*(
                                         ast.literal_eval(
                                             cp.get(section, field),
