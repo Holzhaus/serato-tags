@@ -41,12 +41,12 @@ Each entry has the same format. Labels for Cues and Loops are not supported and 
 | -------- | ------ | ------------------------- | ------------- | ----------------------------------------- | -----------
 | `00`     |   `01` | `00`                      | True          | `uint8_t` (`00` is True, `7f` is False`)  | Is Set
 | `01`     |   `04` | `00 00 00 00`             | 0             | `uint32_t` (`7f 7f 7f 7f` if not set)     | Start Position in milliseconds
-| `02`     |   `01` | `7f`                      |               |                                           |
+| `05`     |   `01` | `7f`                      |               |                                           |
 | `06`     |   `04` | `7f 7f 7f 7f`             | None          | `uint32_t` (`7f 7f 7f 7f` if not set)     | End Position in milliseconds
 | `0a`     |   `06` | `00 7f 7f 7f 7f 7f`       |               |                                           |
-| `0e`     |   `04` | `06 30 00 00`             | `#cc0000`     | 4-byte color value (see below)            | Color
-| `12`     |   `01` | `01`                      | Cue           | `uint8_t`                                 | Type
-| `13`     |   `01` | `00`                      |               |                                           |
+| `10`     |   `04` | `06 30 00 00`             | `#cc0000`     | 4-byte color value (see below)            | Color
+| `14`     |   `01` | `01`                      | Cue           | `uint8_t`                                 | Type
+| `15`     |   `01` | `00`                      |               |                                           |
 
 ### `Serato Markers_` Entry Types
 
