@@ -72,8 +72,8 @@ Conversion is possible by doing some bitwise operations:
 
     # Converting 3-byte RGB into 4-byte Serato color
     z = b & 0x7F
-    y = ((b >> 7) | (g << 1)) & 0xFF
-    x = ((g >> 7) | (r << 2)) & 0xFF
+    y = ((b >> 7) | (g << 1)) & 0x7F
+    x = ((g >> 6) | (r << 2)) & 0x7F
     w = (r >> 5)
     color = (w << 24) | (x << 16) | (y << 8) | z
 
