@@ -26,8 +26,8 @@ class EntryType(enum.IntEnum):
 def color_from_rgb(rgb):
     r, g, b = struct.unpack('BBB', rgb)
     z = b & 0x7F
-    y = ((b >> 7) | (g << 1)) & 0xFF
-    x = ((g >> 7) | (r << 2)) & 0xFF
+    y = ((b >> 7) | (g << 1)) & 0x7F
+    x = ((g >> 6) | (r << 2)) & 0x7F
     w = (r >> 5)
     return bytes(bytearray([w, x, y, z]))
 
