@@ -48,14 +48,14 @@ Each entry has the same format. Labels for Cues and Loops are not supported and 
 | `14`     |   `01` | `01`                      | Cue           | `uint8_t`                                 | Type
 | `15`     |   `01` | `00`                      |               |                                           |
 
-### `Serato Markers_` Entry Types
+### Entry Types
 
 | ID | Type
 | -- | ----
 |  1 | Cue
 |  3 | Loop
 
-### `Serato Markers_` Color Format
+### Color Format
 
 The color format that Serato uses in the `Serato Markers_` entries is a bit
 weird. Apparently they thought it was best to do sprinkle some unused bits into
