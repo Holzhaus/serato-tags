@@ -46,7 +46,7 @@ Each entry has the same format. Labels for Cues and Loops are not supported and 
 | `0a`     |   `06` | `00 7f 7f 7f 7f 7f`       |               |                                           |
 | `10`     |   `04` | `06 30 00 00`             | `#cc0000`     | 4-byte color value (see below)            | Color
 | `14`     |   `01` | `01`                      | Cue           | `uint8_t`                                 | Type
-| `15`     |   `01` | `00`                      |               |                                           |
+| `15`     |   `01` | `00`                      | False         | `bool`                                    | Locked
 
 ### Entry Types
 
