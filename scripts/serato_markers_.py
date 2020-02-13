@@ -41,9 +41,9 @@ def color_to_rgb(data):
 
 
 class Entry(object):
-    FMT = '>BI1sI6s4sBB'
-    FIELDS = ('is_set', 'start_position', 'field3', 'end_position', 'field5',
-              'color', 'type', 'field6')
+    FMT = '>BIBI6s4sBB'
+    FIELDS = ('start_position_set', 'start_position', 'end_position_set',
+              'end_position', 'field5', 'color', 'type', 'is_locked')
 
     def __init__(self, *args):
         assert len(args) == len(self.FIELDS)
@@ -61,16 +61,28 @@ class Entry(object):
         info_size = struct.calcsize(cls.FMT)
         info = struct.unpack(cls.FMT, data[:info_size])
         entry_data = []
+
+        start_position_set = None
+        end_position_set = None
         for field, value in zip(cls.FIELDS, info):
-            if field == 'is_set':
+            if field == 'start_position_set':
                 assert value in (0x00, 0x7F)
-                value = True if not value else False
+                value = value != 0x7F
+                start_position_set = value
+            elif field == 'end_position_set':
+                assert value in (0x00, 0x7F)
+                value = value != 0x7F
+                end_position_set = value
+            elif field == 'start_position':
+                assert start_position_set is not None
+                if not start_position_set:
+                    value = None
+            elif field == 'end_position':
+                assert end_position_set is not None
+                if not end_position_set:
+                    value = None
             elif field in ('color', 'color_mask'):
                 value = color_to_rgb(value)
-            elif field == 'start_position' and value == 0x7F7F7F7F:
-                value = None
-            elif field == 'end_position' and value == 0x7F7F7F7F:
-                value = None
             elif field == 'type':
                 value = EntryType(value)
             entry_data.append(value)
@@ -79,16 +91,26 @@ class Entry(object):
 
     def dump(self):
         entry_data = []
+        start_position_set = None
+        end_position_set = None
         for field in self.FIELDS:
             value = getattr(self, field)
-            if field == 'is_set':
+            if field == 'start_position_set':
                 value = 0x7F if not value else 0x00
+                start_position_set = value
+            elif field == 'end_position_set':
+                value = 0x7F if not value else 0x00
+                end_position_set = value
             elif field in ('color', 'color_mask'):
                 value = color_from_rgb(value)
-            elif field == 'start_position' and value is None:
-                value = 0x7F7F7F7F
-            elif field == 'end_position' and value is None:
-                value = 0x7F7F7F7F
+            elif field == 'start_position':
+                assert start_position_set is not None
+                if not start_position_set:
+                    value = 0x7F7F7F7F
+            elif field == 'end_position':
+                assert end_position_set is not None
+                if not end_position_set:
+                    value = 0x7F7F7F7F
             elif field == 'type':
                 value = int(value)
             entry_data.append(value)
