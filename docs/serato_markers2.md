@@ -54,12 +54,12 @@ By storing the length explicitly instead of deriving it from the type, a parser 
 
 ###   `COLOR` entries
 
-`COLOR` entries describe a track's color inside the tracklist.
+`COLOR` entries describe a track's color.
 
 | Offset   |              Length | Raw Value                 | Decoded Value | Type                    | Description
 | -------- | ------------------- | ------------------------- | ------------- | ----------------------- | -----------
 | `00`     |                `01` | `00`                      |               |                         |
-| `01`     |                `03` | `99 ff 99`                | `#99FF99`     | 3-byte RGB value        | Tracklist color
+| `01`     |                `03` | `99 ff 99`                | `#99FF99`     | 3-byte RGB value        | Track Color
 
 ### `CUE` entries
 

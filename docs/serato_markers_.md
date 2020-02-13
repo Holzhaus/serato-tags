@@ -85,8 +85,8 @@ Conversion is possible by doing some bitwise operations:
 
 ## Footer
 
-The footer consists of 4 bytes that indicate the track color in the library view.
+The footer consists of 4 bytes that indicate the track color.
 
 | Offset   | Length | Raw Value                 | Decoded Value | Type                                      | Description
 | -------- | ------ | ------------------------- | ------------- | ----------------------------------------- | -----------
-| `00`     | `04`   | `07 7f 7f 7f`             | #FFFFFF       | 4-byte color value (see above)            | Track Color Mask (e.g. `#FFFFF` mean black)
+| `00`     | `04`   | `07 7f 7f 7f`             | #FFFFFF       | 4-byte color value (see above)            | Track Color
