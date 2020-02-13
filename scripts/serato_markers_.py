@@ -81,7 +81,7 @@ class Entry(object):
                 assert end_position_set is not None
                 if not end_position_set:
                     value = None
-            elif field in ('color', 'color_mask'):
+            elif field == 'color':
                 value = color_to_rgb(value)
             elif field == 'type':
                 value = EntryType(value)
@@ -97,7 +97,7 @@ class Entry(object):
                 value = 0x7F if not value else 0x00
             elif field == 'end_position_set':
                 value = 0x7F if not value else 0x00
-            elif field in ('color', 'color_mask'):
+            elif field == 'color':
                 value = color_from_rgb(value)
             elif field == 'start_position':
                 if value is None:
@@ -113,7 +113,7 @@ class Entry(object):
 
 class Color(Entry):
     FMT = '>4s'
-    FIELDS = ('color_mask',)
+    FIELDS = ('color',)
 
 
 def parse(fp):
