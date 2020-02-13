@@ -91,25 +91,19 @@ class Entry(object):
 
     def dump(self):
         entry_data = []
-        start_position_set = None
-        end_position_set = None
         for field in self.FIELDS:
             value = getattr(self, field)
             if field == 'start_position_set':
                 value = 0x7F if not value else 0x00
-                start_position_set = value
             elif field == 'end_position_set':
                 value = 0x7F if not value else 0x00
-                end_position_set = value
             elif field in ('color', 'color_mask'):
                 value = color_from_rgb(value)
             elif field == 'start_position':
-                assert start_position_set is not None
-                if not start_position_set:
+                if value is None:
                     value = 0x7F7F7F7F
             elif field == 'end_position':
-                assert end_position_set is not None
-                if not end_position_set:
+                if value is None:
                     value = 0x7F7F7F7F
             elif field == 'type':
                 value = int(value)
