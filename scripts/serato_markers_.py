@@ -23,25 +23,27 @@ class EntryType(enum.IntEnum):
     LOOP = 3
 
 
-def color_from_rgb(rgb):
-    r, g, b = struct.unpack('BBB', rgb)
-    z = b & 0x7F
-    y = ((b >> 7) | (g << 1)) & 0x7F
-    x = ((g >> 6) | (r << 2)) & 0x7F
-    w = (r >> 5)
+def serato32encode(data):
+    """Encode 3 byte plain text into 4 byte Serato binary format."""
+    a, b, c = struct.unpack('BBB', data)
+    z = c & 0x7F
+    y = ((c >> 7) | (b << 1)) & 0x7F
+    x = ((b >> 6) | (a << 2)) & 0x7F
+    w = (a >> 5)
     return bytes(bytearray([w, x, y, z]))
 
 
-def color_to_rgb(data):
+def serato32decode(data):
+    """Decode 4 byte Serato binary format into 3 byte plain text."""
     w, x, y, z = struct.unpack('BBBB', data)
-    b = (z & 0x7F) | ((y & 0x01) << 7)
-    g = ((y & 0x7F) >> 1) | ((x & 0x03) << 6)
-    r = ((x & 0x7F) >> 2) | ((w & 0x07) << 5)
-    return struct.pack('BBB', r, g, b)
+    c = (z & 0x7F) | ((y & 0x01) << 7)
+    b = ((y & 0x7F) >> 1) | ((x & 0x03) << 6)
+    a = ((x & 0x7F) >> 2) | ((w & 0x07) << 5)
+    return struct.pack('BBB', a, b, c)
 
 
 class Entry(object):
-    FMT = '>BIBI6s4sBB'
+    FMT = '>B4sB4s6s4sBB'
     FIELDS = ('start_position_set', 'start_position', 'end_position_set',
               'end_position', 'field5', 'color', 'type', 'is_locked')
 
@@ -75,14 +77,20 @@ class Entry(object):
                 end_position_set = value
             elif field == 'start_position':
                 assert start_position_set is not None
-                if not start_position_set:
+                if start_position_set:
+                    value = struct.unpack(
+                        '>I', serato32decode(value).rjust(4, b'\x00'))[0]
+                else:
                     value = None
             elif field == 'end_position':
                 assert end_position_set is not None
-                if not end_position_set:
+                if end_position_set:
+                    value = struct.unpack(
+                        '>I', serato32decode(value).rjust(4, b'\x00'))[0]
+                else:
                     value = None
             elif field in ('color', 'color_mask'):
-                value = color_to_rgb(value)
+                value = serato32decode(value)
             elif field == 'type':
                 value = EntryType(value)
             entry_data.append(value)
@@ -102,14 +110,18 @@ class Entry(object):
                 value = 0x7F if not value else 0x00
                 end_position_set = value
             elif field in ('color', 'color_mask'):
-                value = color_from_rgb(value)
+                value = serato32encode(value)
             elif field == 'start_position':
                 assert start_position_set is not None
-                if not start_position_set:
+                if start_position_set:
+                    value = serato32encode(struct.pack('>I', value)[1:])
+                else:
                     value = 0x7F7F7F7F
             elif field == 'end_position':
                 assert end_position_set is not None
-                if not end_position_set:
+                if end_position_set:
+                    value = serato32encode(struct.pack('>I', value)[1:])
+                else:
                     value = 0x7F7F7F7F
             elif field == 'type':
                 value = int(value)
