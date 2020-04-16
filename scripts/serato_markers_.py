@@ -89,7 +89,7 @@ class Entry(object):
                         '>I', serato32decode(value).rjust(4, b'\x00'))[0]
                 else:
                     value = None
-            elif field in ('color', 'color_mask'):
+            elif field == 'color':
                 value = serato32decode(value)
             elif field == 'type':
                 value = EntryType(value)
@@ -99,30 +99,24 @@ class Entry(object):
 
     def dump(self):
         entry_data = []
-        start_position_set = None
-        end_position_set = None
         for field in self.FIELDS:
             value = getattr(self, field)
             if field == 'start_position_set':
                 value = 0x7F if not value else 0x00
-                start_position_set = value
             elif field == 'end_position_set':
                 value = 0x7F if not value else 0x00
-                end_position_set = value
-            elif field in ('color', 'color_mask'):
+            elif field == 'color':
                 value = serato32encode(value)
             elif field == 'start_position':
-                assert start_position_set is not None
-                if start_position_set:
-                    value = serato32encode(struct.pack('>I', value)[1:])
-                else:
+                if value is None:
                     value = 0x7F7F7F7F
+                else:
+                    value = serato32encode(struct.pack('>I', value)[1:])
             elif field == 'end_position':
-                assert end_position_set is not None
-                if end_position_set:
-                    value = serato32encode(struct.pack('>I', value)[1:])
-                else:
+                if value is None:
                     value = 0x7F7F7F7F
+                else:
+                    value = serato32encode(struct.pack('>I', value)[1:])
             elif field == 'type':
                 value = int(value)
             entry_data.append(value)
@@ -131,7 +125,7 @@ class Entry(object):
 
 class Color(Entry):
     FMT = '>4s'
-    FIELDS = ('color_mask',)
+    FIELDS = ('color',)
 
 
 def parse(fp):
