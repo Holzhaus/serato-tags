@@ -37,16 +37,16 @@ Every entry is apparently 22 (= 0x16) bytes long.
 
 Each entry has the same format. Labels for Cues and Loops are not supported and are loaded from [`Serato Markers2`](serato_markers2.md) instead.
 
-| Offset   | Length | Raw Value                 | Decoded Value | Type                                      | Description
-| -------- | ------ | ------------------------- | ------------- | ----------------------------------------- | -----------
-| `00`     |   `01` | `00`                      | True          | `uint8_t` (`00` is True, `7f` is False`)  | Start Position set
-| `01`     |   `04` | `00 00 00 00`             | 0             | `uint32_t` (`7f 7f 7f 7f` if not set)     | Start Position in milliseconds
-| `05`     |   `01` | `7f`                      |               | `uint8_t` (`00` is True, `7f` is False`)  | End Position set
-| `06`     |   `04` | `7f 7f 7f 7f`             | None          | `uint32_t` (`7f 7f 7f 7f` if not set)     | End Position in milliseconds
-| `0a`     |   `06` | `00 7f 7f 7f 7f 7f`       |               |                                           |
-| `10`     |   `04` | `06 30 00 00`             | `#cc0000`     | 4-byte color value (see below)            | Color
-| `14`     |   `01` | `01`                      | Cue           | `uint8_t`                                 | Type
-| `15`     |   `01` | `00`                      | False         | `bool`                                    | Locked
+| Offset   | Length | Raw Value                 | Decoded Value | Type                                                       | Description
+| -------- | ------ | ------------------------- | ------------- | ---------------------------------------------------------- | -----------
+| `00`     |   `01` | `00`                      | True          | `uint8_t` (`00` is True, `7f` is False)                    | Start Position set
+| `01`     |   `04` | `00 00 00 00`             | 0             | `uint24_t` (`serato32`-encoded) (`7f 7f 7f 7f` if not set) | Start Position in milliseconds
+| `05`     |   `01` | `7f`                      | False         | `uint8_t` (`00` is True, `7f` is False)                    | End Position set
+| `06`     |   `04` | `7f 7f 7f 7f`             | None          | `uint24_t` (`serato32`-encoded) (`7f 7f 7f 7f` if not set) | End Position in milliseconds
+| `0a`     |   `06` | `00 7f 7f 7f 7f 7f`       |               |                                                            |
+| `10`     |   `04` | `06 30 00 00`             | `#cc0000`     | 3-byte RGB (`serato32`-encoded)                            | Color
+| `14`     |   `01` | `01`                      | Cue           | `uint8_t`                                                  | Type
+| `15`     |   `01` | `00`                      | False         | `bool`                                                     | Locked
 
 ### Entry Types
 
@@ -55,33 +55,36 @@ Each entry has the same format. Labels for Cues and Loops are not supported and 
 |  1 | Cue
 |  3 | Loop
 
-### Color Format
+### Custom `serato32` Binary Format
 
-The color format that Serato uses in the `Serato Markers_` entries is a bit
-weird. Apparently they thought it was best to do sprinkle some unused bits into
-the 3-byte RGB value. Hence, the resulting number becomes 4 bytes long:
+The values that Serato uses in the `Serato Markers_` entries are encoded in a
+weird 4-byte binary format that I called `serato32` in the tables above.
+Apparently they thought it was best to do sprinkle some unused bits into
+the 3-byte value. Hence, the resulting data becomes 4 bytes long:
 
-    Serato Color |     Byte1     |     Byte2     |     Byte3     |     Byte4     |
+    Serato32     |     Byte1     |     Byte2     |     Byte3     |     Byte4     |
                  | Nibb1 | Nibb2 | Nibb3 | Nibb4 | Nibb5 | Nibb6 | Nibb7 | Nibb8 |
     Bits         |A A A A B B B B C C C C D D D D E E E E F F F F G G G G H H H H|
     Ignored Bits |^ ^ ^ ^ ^       ^               ^               ^              |
-    RGB          |||||||||||      Red        |      Green      |      Blue       |
+    Plaintext    |||||||||||     Byte1       |      Byte2      |      Byte3      |
                  |||||||||||  Nibb1  | Nibb2 |  Nibb3  | Nibb4 |  Nibb5  | Nibb6 |
 
 Conversion is possible by doing some bitwise operations:
 
-    # Converting 3-byte RGB into 4-byte Serato color
-    z = b & 0x7F
-    y = ((b >> 7) | (g << 1)) & 0x7F
-    x = ((g >> 6) | (r << 2)) & 0x7F
-    w = (r >> 5)
+    # Converting 3-byte plaintext into 4-byte Serato32 value
+    z = c & 0x7F
+    y = ((c >> 7) | (b << 1)) & 0x7F
+    x = ((b >> 6) | (a << 2)) & 0x7F
+    w = (a >> 5)
     color = (w << 24) | (x << 16) | (y << 8) | z
 
     # Converting 4-byte Serato color into 3-byte RGB
-    b = (z & 0x7F) | ((y & 0x01) << 7)
-    g = ((y & 0x7F) >> 1) | ((x & 0x03) << 6)
-    r = ((x & 0x7F) >> 2) | ((w & 0x07) << 5)
-    color = (r << 16) | (g << 8) | b
+    c = (z & 0x7F) | ((y & 0x01) << 7)
+    b = ((y & 0x7F) >> 1) | ((x & 0x03) << 6)
+    a = ((x & 0x7F) >> 2) | ((w & 0x07) << 5)
+    color = (a << 16) | (b << 8) | c
+
+This data format is used to encode the 3-byte RGB color values (track color, cue colors) and the cue positions.
 
 ## Footer
 
