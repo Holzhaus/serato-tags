@@ -62,6 +62,7 @@ Data is stored as Apple iTunes metadata fields:
 The field data is base64-encoded (without padding, *no* linefeeds).
 After decoding, the data is the same as in FLAC files.
 
+In the special case of MP4/M4A files, Serato only reads the first 5 cue points and all loops when these are also in the `----:com.serato.dj:markers` field. This field has a fixed length and even when cue points or loops are not in use, they should still be filled.
 
 ## Ogg Vorbis
 
