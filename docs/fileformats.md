@@ -13,7 +13,6 @@ Serato DJ Pro [supports a variety of different file types](https://support.serat
 - M4A
 - AAC (mac only)
 
-
 ## MP3 and AIFF
 
 Data is stored inside [ID3v2.4 General encapsulated object (GEOB)](http://id3.org/id3v2.4.0-frames) frames:
@@ -28,7 +27,8 @@ Data is stored inside [ID3v2.4 General encapsulated object (GEOB)](http://id3.or
 
 ## FLAC
 
-Data is stored inside the `VORBIS_COMMENT` block. The fields used are as follows:
+Data is stored inside the [`VORBIS_COMMENT`](https://xiph.org/vorbis/doc/v-comment.html) block.
+The fields used are as follows:
 
 - `SERATO_ANALYSIS`
 - `SERATO_AUTOGAIN`
@@ -38,11 +38,14 @@ Data is stored inside the `VORBIS_COMMENT` block. The fields used are as follows
 - `SERATO_RELVOL`
 - `SERATO_VIDEO_ASSOC`
 
-The field data is base64 encoded (without padding, linefeed [`\n`[ after every 72 characters).
-After decoding, the data contains 
+The field data is base64-encoded without padding and linefeed `\n`
+inserted after every 72 characters.
+
+After decoding, the data contains:
+
 - the null-terminated string `application/octet-stream`
 - a null-byte (`\0`)
-- a null-terminated field name (e.g. `Serato Markers2`)
+- a null-terminated field name (e.g. `Serato Markers_` or `Serato Markers2`)
 - the actual data (e.g. `\x01\01AQFDT...`)
 
 ## MP4/M4A (AAC, ALAC)
@@ -76,8 +79,7 @@ Data is stored as `VorbisComment` metadata with the following field names:
 - `serato_markers`
 - `serato_markers2`
 
-For unknown reasons, the data format in Ogg Vorbis files seems differ significantly from other files types.
-
+For unknown reasons, the data format in Ogg Vorbis files seems differ significantly from other file types.
 
 ## AAC
 
