@@ -45,10 +45,10 @@ After decoding, the data contains
 - a null-terminated field name (e.g. `Serato Markers2`)
 - the actual data (e.g. `\x01\01AQFDT...`)
 
+## MP4/M4A (AAC, ALAC)
 
-# MP4/M4A
-
-Data is stored as Apple iTunes metadata fields:
+Data is stored as custom MP4 atoms using the *type* `----` and the
+*mean* `com.serato.dj`:
 
 - `----:com.serato.dj:analysisVersion`
 - `----:com.serato.dj:autgain`
@@ -59,10 +59,12 @@ Data is stored as Apple iTunes metadata fields:
 - `----:com.serato.dj:relvol`
 - `----:com.serato.dj:videoassociation`
 
-The field data is base64-encoded (without padding, *no* linefeeds).
-After decoding, the data is the same as in FLAC files.
+Field data is base64-encoded without padding. Both fields `markers` and
+`markersv2` contain linefeeds after every 72 characters while all other
+fields don't (i.e. *no* linefeeds). The decoded data matches the format
+used for FLAC files.
 
-In the special case of MP4/M4A files, Serato only reads the first 5 cue points and all loops when these are also in the `----:com.serato.dj:markers` field. This field has a fixed length and even when cue points or loops are not in use, they should still be filled.
+In the special case of MP4/M4A files, Serato only reads the first 5 cue points and all loops when these are also in the `markers` field. This field has a fixed length and even when cue points or loops are not in use, they should still be filled.
 
 ## Ogg Vorbis
 
