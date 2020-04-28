@@ -34,7 +34,9 @@ def get_serato_tagdata(tagfile, decode=False):
                     fixed_data += b'='
                 data = base64.b64decode(fixed_data)
 
-                assert data.startswith(b'application/octet-stream\0')
+                if not data.startswith(b'application/octet-stream\0'):
+                    print('Failed to parse tag: {}'.format(tagname))
+                    continue
                 fieldname_endpos = data.index(b'\0', 26)
                 fieldname = data[26:fieldname_endpos].decode()
                 fielddata = data[fieldname_endpos + 1:]
@@ -57,6 +59,7 @@ def main(argv=None):
     for field, value in get_serato_tagdata(tagfile, decode=args.decode):
         filename = '{name}.octet-stream'.format(name=field)
         filepath = os.path.join(args.output_dir, filename)
+        print('Writing field "{}" to file: {}'.format(field, filepath))
         with open(filepath, mode='wb') as fp:
             fp.write(value)
 
