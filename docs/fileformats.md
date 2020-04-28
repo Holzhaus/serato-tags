@@ -13,7 +13,6 @@ Serato DJ Pro [supports a variety of different file types](https://support.serat
 - M4A
 - AAC (mac only)
 
-
 ## MP3 and AIFF
 
 Data is stored inside [ID3v2.4 General encapsulated object (GEOB)](http://id3.org/id3v2.4.0-frames) frames:
@@ -28,7 +27,8 @@ Data is stored inside [ID3v2.4 General encapsulated object (GEOB)](http://id3.or
 
 ## FLAC
 
-Data is stored inside the `VORBIS_COMMENT` block. The fields used are as follows:
+Data is stored inside the [`VORBIS_COMMENT`](https://xiph.org/vorbis/doc/v-comment.html) block.
+The fields used are as follows:
 
 - `SERATO_ANALYSIS`
 - `SERATO_AUTOGAIN`
@@ -38,17 +38,20 @@ Data is stored inside the `VORBIS_COMMENT` block. The fields used are as follows
 - `SERATO_RELVOL`
 - `SERATO_VIDEO_ASSOC`
 
-The field data is base64 encoded (without padding, linefeed [`\n`[ after every 72 characters).
-After decoding, the data contains 
+The field data is base64-encoded without padding and linefeed `\n`
+inserted after every 72 characters.
+
+After decoding, the data contains:
+
 - the null-terminated string `application/octet-stream`
 - a null-byte (`\0`)
-- a null-terminated field name (e.g. `Serato Markers2`)
+- a null-terminated field name (e.g. `Serato Markers_` or `Serato Markers2`)
 - the actual data (e.g. `\x01\01AQFDT...`)
 
+## MP4/M4A (AAC, ALAC)
 
-# MP4/M4A
-
-Data is stored as Apple iTunes metadata fields:
+Data is stored as custom MP4 atoms using the *type* `----` and the
+*mean* `com.serato.dj`:
 
 - `----:com.serato.dj:analysisVersion`
 - `----:com.serato.dj:autgain`
@@ -59,10 +62,12 @@ Data is stored as Apple iTunes metadata fields:
 - `----:com.serato.dj:relvol`
 - `----:com.serato.dj:videoassociation`
 
-The field data is base64-encoded (without padding, *no* linefeeds).
-After decoding, the data is the same as in FLAC files.
+Field data is base64-encoded without padding. Both fields `markers` and
+`markersv2` contain linefeeds after every 72 characters while all other
+fields don't (i.e. *no* linefeeds). The decoded data matches the format
+used for FLAC files.
 
-In the special case of MP4/M4A files, Serato only reads the first 5 cue points and all loops when these are also in the `----:com.serato.dj:markers` field. This field has a fixed length and even when cue points or loops are not in use, they should still be filled.
+In the special case of MP4/M4A files, Serato only reads the first 5 cue points and all loops when these are also in the `markers` field. This field has a fixed length and even when cue points or loops are not in use, they should still be filled.
 
 ## Ogg Vorbis
 
@@ -74,8 +79,7 @@ Data is stored as `VorbisComment` metadata with the following field names:
 - `serato_markers`
 - `serato_markers2`
 
-For unknown reasons, the data format in Ogg Vorbis files seems differ significantly from other files types.
-
+For unknown reasons, the data format in Ogg Vorbis files seems differ significantly from other file types.
 
 ## AAC
 
