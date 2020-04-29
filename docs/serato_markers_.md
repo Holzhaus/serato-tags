@@ -9,7 +9,7 @@ The tag data consists of a header followed by 14 entries and 4 footer bytes.
 
 Every entry is apparently 22 (= 0x16) bytes long.
 
-    $ tail -c +7 data/hotcue-positions-00m00s0-03m38s4-01m00s0-00m00s1-00m01s0/Serato\ Markers_.octet-stream | hexdump -v -e '"%08.8_ax " 22/1 "%02x " "\n"'
+    $ tail -c +7 data/id3/hotcue-positions-00m00s0-03m38s4-01m00s0-00m00s1-00m01s0/Serato\ Markers_.octet-stream | hexdump -v -e '"%08.8_ax " 22/1 "%02x " "\n"'
     00000000 00 00 00 00 00 7f 7f 7f 7f 7f 00 7f 7f 7f 7f 7f 06 30 00 00 01 00
     00000016 00 00 0d 2a 58 7f 7f 7f 7f 7f 00 7f 7f 7f 7f 7f 06 32 10 00 01 00
     0000002c 00 00 03 54 64 7f 7f 7f 7f 7f 00 7f 7f 7f 7f 7f 00 00 01 4c 01 00
