@@ -59,7 +59,8 @@ def main(argv=None):
     for field, value in get_serato_tagdata(tagfile, decode=args.decode):
         filename = '{name}.octet-stream'.format(name=field)
         filepath = os.path.join(args.output_dir, filename)
-        print('Writing field "{}" to file: {}'.format(field, filepath))
+        print('Writing {}field "{}" to file: {}'.format(
+            'decoded ' if args.decode else '', field, filepath))
         with open(filepath, mode='wb') as fp:
             fp.write(value)
 
