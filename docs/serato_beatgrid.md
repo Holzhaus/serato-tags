@@ -44,4 +44,4 @@ Instead of a floating point BPM value, they contain the number of beats till the
 
 | Offset | Length | Raw Value                 | Decoded Value | Type                    | Description
 | ------ | ------ | ------------------------- | ------------- | ----------------------- | -----------
-|   `00` |   `01` | `37`                      |               |                         |
+|   `00` | `01`   | `37`                      |               | *?* (1 byte)            | Apparently random (?)
