@@ -9,10 +9,19 @@ import mutagen
 
 FMT_VERSION = 'BB'
 
-BeatgridMarker = collections.namedtuple('BeatgridMarker', (
+NonTerminalBeatgridMarker = collections.namedtuple(
+    'NonTerminalBeatgridMarker', (
+        'position',
+        'beats_till_next_marker',
+    )
+)
+TerminalBeatgridMarker = collections.namedtuple('TerminalBeatgridMarker', (
     'position',
-    'beats_till_next_marker',
     'bpm',
+))
+
+Footer = collections.namedtuple('Footer', (
+    'unknown',
 ))
 
 
@@ -26,22 +35,19 @@ def parse(fp):
         data = fp.read(4)
         if i == num_markers - 1:
             bpm = struct.unpack('>f', data)[0]
-            beats_till_next_marker = None
+            yield TerminalBeatgridMarker(position, bpm)
         else:
-            bpm = None
             beats_till_next_marker = struct.unpack('>I', data)[0]
-        yield BeatgridMarker(position, beats_till_next_marker, bpm)
+            yield NonTerminalBeatgridMarker(position, beats_till_next_marker)
 
-    # TODO: What's the meaning of this byte?
-    footer = fp.read(1)
-    #print(struct.unpack('sbB', footer*3)))
+    # TODO: What's the meaning of the footer byte?
+    yield Footer(struct.unpack('B', fp.read(1))[0])
     assert fp.read() == b''
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('file', metavar='FILE')
-    parser.add_argument('-e', '--edit', action='store_true')
     args = parser.parse_args(argv)
 
     tagfile = mutagen.File(args.file)
