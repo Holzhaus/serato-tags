@@ -111,21 +111,38 @@ Each `CUE` entry contains information about a [cue point](https://support.serato
 #### Subentries of `FLIP` entries
 
 Each subentry starts with a header that contains its type and length.
-It's unknown if type `0x00` is an actual single-byte value or if it's an empty, null-terminated string.
+
+The last entry is always a jump entry where the source position is the time when the Flip recording was stopped.
+If looping is enabled, it's target position is the source position of the first entry.
+If not, the target position of that last entry is the same as its source position.
+
 
 | Offset   |              Length | Raw Value                 | Decoded Value | Type                    | Description
 | -------- | ------------------- | ------------------------- | ------------- | ----------------------- | -----------
-| `00`     |                `01` | `00`                      | 0             | `uint8_t` (?)           | Type (?)
+| `00`     |                `01` | `00`                      | 0             | `uint8_t`               | Type
 | `01`     |                `04` | `00 00 00 10`             | 16            | `uint32_t`              | Length
 | `05`     |                `10` | `40 35` .. `7a e1`        |            .  | See below               | Data
 
 
-##### Subentries of type `0`
+##### Subentries of type `0` (Jumps)
 
 Subentries of type `0` are 16 bytes long and consist of two `double` precision floating point values.
-The first values denotes the absolute position in the track where a jump occurs, the second value is the jump target.
+The first value denotes the absolute position in the track where a jump occurs, the second value is the jump target.
 
 | Offset   |              Length | Raw Value                 | Decoded Value | Type                    | Description
 | -------- | ------------------- | ------------------------- | ------------- | ----------------------- | -----------
 | `00`     |                `08` | `40 35 30 04 85 6e 43 e2` | 21.187568...  | `double` (binary64)     | Source position in seconds
 | `08`     |                `08` | `40 4b 51 47 ae 14 7a e1` | 54.635        | `double` (binary64)     | Target position in seconds
+
+##### Subentries of type `1` (Playback/Censor)
+
+Subentries of type `1` are 24 bytes long and consist of three `double` precision floating point values.
+The first value denotes the absolute position in the track where playback starts, the second value is the playback ends.
+The third value is the playback speed factor.
+Subentries of this type are used for censoring (playback speed factor is -1.0) and are followed with a jump subentry from the censoring entry's end position to the play position that the track would be at without the reverse playback.
+
+| Offset   |              Length | Raw Value                 | Decoded Value | Type                    | Description
+| -------- | ------------------- | ------------------------- | ------------- | ----------------------- | -----------
+| `00`     |                `08` | `40 12 18 1b ad d5 28 b0` | 4.44800000... | `double` (binary64)     | Source position in seconds
+| `08`     |                `08` | `40 07 fc 55 65 38 56 3d` | 3.09333333... | `double` (binary64)     | Target position in seconds
+| `10`     |                `08` | `bf f0 00 00 00 00 00 00` | -1.0          | `double` (binary64)     | Playback speed factor
