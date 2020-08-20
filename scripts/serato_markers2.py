@@ -126,7 +126,7 @@ class LoopEntry(Entry):
 class FlipEntry(Entry):
     NAME = 'FLIP'
     FMT1 = 'cB?'
-    FMT2 = '>?I'
+    FMT2 = '>BI'
     FMT3 = '>BI16s'
     FIELDS = ('field1', 'index', 'enabled', 'name', 'loop', 'num_actions',
               'actions')
@@ -145,10 +145,13 @@ class FlipEntry(Entry):
         for i in range(num_actions):
             type_id, size = struct.unpack(cls.FMT2, action_data[:info2_size])
             action_data = action_data[info2_size:]
-            assert type_id == 0
-            payload = struct.unpack('>dd', action_data[:size])
+            if type_id == 0:
+                payload = struct.unpack('>dd', action_data[:size])
+                actions.append(("JUMP", *payload))
+            elif type_id == 1:
+                payload = struct.unpack('>ddd', action_data[:size])
+                actions.append(("CENSOR", *payload))
             action_data = action_data[size:]
-            actions.append(payload)
         assert action_data == b''
 
         return cls(*info1, name.decode('utf-8'), loop, num_actions, actions)
